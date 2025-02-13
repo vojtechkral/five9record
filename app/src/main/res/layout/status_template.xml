@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
+    android:layout_width="640px"
+    android:layout_height="480px"
+    android:background="@android:color/black"
+    android:baselineAligned="false"
+    android:paddingTop="20px"
+    android:paddingLeft="20px"
+    android:paddingRight="20px"
+    android:paddingBottom="2px"
+    android:theme="@style/status_screen"
+    tools:ignore="PxUsage,HardcodedText,RtlSymmetry,ContentDescription,UseCompoundDrawables">
+
+    <TableLayout
+        android:id="@+id/tableLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical" >
+
+            <!-- The minWidth of lRig sets the width of the 1st column -->
+            <TextView
+                android:id="@+id/lRig"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="80px"
+                android:text="RIG"
+                android:textColor="#FFEB3B"
+                android:textSize="40px" />
+
+            <LinearLayout
+                android:id="@+id/layoutTx"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <TextView
+                    android:id="@+id/rig"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="-0.03"
+                    android:text="Yaesu FT-891"
+                    android:textColor="@android:color/white"
+                    android:textSize="35px" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/txLed"
+                    style="@style/status_screen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingEnd="5px"
+                    android:src="@drawable/status_rx" />
+
+                <TextView
+                    android:id="@+id/tx"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.1"
+                    android:text="RX"
+                    android:textColor="@color/white"
+                    android:textSize="50px" />
+            </LinearLayout>
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/lFreq"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VFO"
+                android:textColor="#FFEB3B"
+                android:textSize="40px" />
+
+            <TextView
+                android:id="@+id/freq"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="-0.03"
+                android:text="1234.250.000 Hz"
+                android:textColor="@android:color/white"
+                android:textSize="65px" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/lMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingEnd="15px"
+                android:text="MOD"
+                android:textColor="#FFEB3B"
+                android:textSize="40px" />
+
+            <TextView
+                android:id="@+id/mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="USB"
+                android:textColor="@android:color/white"
+                android:textSize="40px" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/lPower"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingEnd="15px"
+                android:text="PEP"
+                android:textColor="#FFEB3B"
+                android:textSize="40px" />
+
+            <TextView
+                android:id="@+id/power"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="60W"
+                android:textColor="@android:color/white"
+                android:textSize="40px" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/lUtc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingEnd="15px"
+                android:text="UTC"
+                android:textColor="#FFEB3B"
+                android:textSize="40px" />
+
+            <TextView
+                android:id="@+id/utc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2025-02-20 22:05:00"
+                android:textColor="@android:color/white"
+                android:textSize="40px" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/lQth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingEnd="15px"
+                android:text="QTH"
+                android:textColor="#FFEB3B"
+                android:textSize="40px" />
+
+            <TextView
+                android:id="@+id/qth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="JO80EH"
+                android:textColor="@android:color/white"
+                android:textSize="40px" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout>
+
+                <ImageView
+                    style="@style/status_screen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingEnd="5px"
+                    android:src="@drawable/gnss_satellite" />
+
+                <TextView
+                    android:id="@+id/gnssDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="8/16 50.07550N 14.43780E"
+                    android:textColor="@android:color/white"
+                    android:textSize="25px" />
+            </LinearLayout>
+
+        </TableRow>
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/Footer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recorded with Five9 Record by OK3VO"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="15px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

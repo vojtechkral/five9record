@@ -1,0 +1,5 @@
+<resources>
+    <declare-styleable name="EmptyAwareSpinner">
+        <attr name="emptyViewId" format="reference" />
+    </declare-styleable>
+</resources>

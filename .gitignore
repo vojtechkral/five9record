@@ -1,0 +1,9 @@
+/scratch
+/.idea
+/build
+/captures
+
+*.iml
+.gradle
+.externalNativeBuild
+local.properties
