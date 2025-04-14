@@ -7,8 +7,6 @@ import android.content.pm.PackageManager
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
-import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -33,7 +31,7 @@ class StartRecordingActivity : AppCompatActivity() {
     private val audioDevs: AudioDevices by lazy { AudioDevices(this) }
     private val permsRequestResults = Channel<IntArray>()
 
-    private val radio: RadioType get() = binding.spinnerRadio.selectedItem as RadioType
+    private val radio: RadioType get() = binding.pickerRadio.selectedItem as RadioType
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (Radio.isRunning) {
@@ -45,30 +43,18 @@ class StartRecordingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.spinnerRadio.adapter = ArrayAdapter(this, R.layout.spinner_item, RadioType.entries)
-        binding.spinnerRadio.onItemSelectedListener = onSpinnerRadioSelect
+        binding.pickerRadio.items = RadioType.entries
+        binding.pickerRadio.onItemSelected { _, _ -> refreshBaudRates() }
 
-        val serialDevs = usb.serialDevices
-        if (serialDevs.isNotEmpty()) {
-            binding.spinnerSerial.adapter = ArrayAdapter(this, R.layout.spinner_item, serialDevs)
-        }
+        binding.pickerSerial.items = usb.serialDevices
 
         refreshBaudRates()
 
-        val audioInputs = audioDevs.recordingDevices
-        // FIXME: if empty?
-        binding.spinnerAudio.adapter = ArrayAdapter(this, R.layout.spinner_item, audioInputs)
+        binding.pickerAudio.items = audioDevs.recordingDevices
 
         binding.btnStartRecording.setOnClickListener {
             lifecycleScope.launch { startRecording() }
         }
-
-//        MaterialAlertDialogBuilder(this)
-//            .setTitle("Pokus")
-//            .setSingleChoiceItems(arrayOf("Jedna", "Dva", "Tři"), 0) { _, _ -> }
-//            .setPositiveButton("Ok") { _, _ -> }
-//            .setNegativeButton("Cancel") { _, _  ->}
-//            .show()
     }
 
     private suspend fun startRecording() {
@@ -77,7 +63,7 @@ class StartRecordingActivity : AppCompatActivity() {
         }
 
         val radio = radio
-        val serial = binding.spinnerSerial.selectedItem as? SerialDevice?
+        val serial = binding.pickerSerial.selectedItem as? SerialDevice?
         if (serial == null && radio != RadioType.MOCKED) {
             AlertDialog.Builder(this)
                 .setTitle("Cannot start recording")
@@ -93,7 +79,17 @@ class StartRecordingActivity : AppCompatActivity() {
             return
         }
 
-        val audio = binding.spinnerAudio.selectedItem as AudioDeviceInfoUi
+        val audio = binding.pickerAudio.selectedItem as AudioDeviceInfoUi?
+        if (audio == null) {
+            AlertDialog.Builder(this)
+                .setTitle("Cannot start recording")
+                .setMessage("Cannot start recording without an audio input device.")
+                .setPositiveButton("Back") { dialog, _ -> dialog.dismiss() }
+                .show()
+
+            return
+        }
+
         val svcIntent = Intent(this, RecordingService::class.java)
             .apply { putExtra(RecordingService.INTENT_AUDIO_DEVICE, audio.id) }
         val activityIntent = Intent(this, RecordingActivity::class.java)
@@ -142,7 +138,7 @@ class StartRecordingActivity : AppCompatActivity() {
      * and due to waiting on Radio.start().
      */
     private suspend fun startRadioIo(radio: RadioType, serial: SerialDevice?) {
-        val baudRate = binding.spinnerBaudRate.selectedItem as BaudRateUi
+        val baudRate = binding.pickerBaudRate.selectedItem as BaudRateUi
 
         if (radio != RadioType.MOCKED) {
             val openSerial = usb.openSerial(serial!!) // serial known to be non-null at this point
@@ -156,17 +152,8 @@ class StartRecordingActivity : AppCompatActivity() {
     }
 
     private fun refreshBaudRates() {
-        val radio = radio.companion
-        val rates = radio.baudRates.map { BaudRateUi(it) }
-        binding.spinnerBaudRate.adapter = ArrayAdapter(this, R.layout.spinner_item, rates)
-    }
-
-    private val onSpinnerRadioSelect = object : AdapterView.OnItemSelectedListener {
-        override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-            refreshBaudRates()
-        }
-
-        override fun onNothingSelected(parent: AdapterView<*>?) {}
+        val baudRates = radio.companion.baudRates
+        binding.pickerBaudRate.items = baudRates.map { BaudRateUi(it) }
     }
 
     private suspend fun ensurePermissions(): Boolean {

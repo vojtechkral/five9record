@@ -18,7 +18,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-        app:title="@string/recording"
+        app:title="@string/new_recording"
         app:titleTextColor="?attr/colorSurfaceContainer" />
 
     <TextView
@@ -32,16 +32,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-    <Spinner
-        android:id="@+id/spinnerRadio"
+    <cs.ok3vo.five9record.ui.PickerButton
+        android:id="@+id/pickerRadio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
+        android:text="Radio Type"
+        tools:ignore="HardcodedText"
+        android:textSize="20sp"
+        app:dialogTitle="Radio Type"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvRadio" />
+        app:layout_constraintTop_toBottomOf="@+id/tvRadio" />
 
     <TextView
         android:id="@+id/tvSerialLabel"
@@ -52,35 +53,20 @@
         android:text="@string/serial_port"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerRadio" />
+        app:layout_constraintTop_toBottomOf="@+id/pickerRadio" />
 
-    <LinearLayout
-        android:id="@+id/lSpinnerSerial"
-        android:layout_width="match_parent"
+    <cs.ok3vo.five9record.ui.PickerButton
+        android:id="@+id/pickerSerial"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
-        android:gravity="center_horizontal"
-        android:orientation="vertical"
+        android:text="Serial port"
+        tools:ignore="HardcodedText"
+        android:textSize="17sp"
+        app:dialogTitle="USB Serial Device"
+        app:emptyText="No USB serial ports found"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvSerialLabel">
-
-        <cs.ok3vo.five9record.util.EmptyAwareSpinner
-            android:id="@+id/spinnerSerial"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:emptyViewId="@id/tvSpinnerSerialEmpty" />
-
-        <TextView
-            android:id="@+id/tvSpinnerSerialEmpty"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/no_serial_ports_found"
-            android:textSize="20sp"
-            android:textStyle="bold"/>
-    </LinearLayout>
+        app:layout_constraintTop_toBottomOf="@+id/tvSerialLabel" />
 
     <TextView
         android:id="@+id/tvBaudRateLabel"
@@ -91,15 +77,17 @@
         android:text="@string/baud_rate"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/lSpinnerSerial" />
+        app:layout_constraintTop_toBottomOf="@+id/pickerSerial" />
 
-    <Spinner
-        android:id="@+id/spinnerBaudRate"
+    <cs.ok3vo.five9record.ui.PickerButton
+        android:id="@+id/pickerBaudRate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
+        android:text="Baud rate"
+        tools:ignore="HardcodedText"
+        android:textSize="17sp"
+        app:dialogTitle="Baud Rate"
+        app:emptyText="No baud rate choices"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvBaudRateLabel" />
@@ -113,30 +101,32 @@
         android:text="@string/audio_input"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerBaudRate" />
+        app:layout_constraintTop_toBottomOf="@+id/pickerBaudRate" />
 
-    <Spinner
-        android:id="@+id/spinnerAudio"
+
+    <cs.ok3vo.five9record.ui.PickerButton
+        android:id="@+id/pickerAudio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
+        android:text="Audio input"
+        tools:ignore="HardcodedText"
+        android:textSize="17sp"
+        app:dialogTitle="Audio Input"
+        app:emptyText="No baud rate choices"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvAudioLabel" />
 
-    <Button
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/btnStartRecording"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="132dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="132dp"
-        android:text="Start Recording"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="20dp"
+        android:text="@string/start_recording"
         app:icon="@android:drawable/stat_notify_voicemail"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinnerAudio" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

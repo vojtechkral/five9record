@@ -2,14 +2,13 @@
 
 - DRY out catQuery/catCmd?
 - Error handling UI - produce a notification on error while recording
-- Recording activity UI refactor
 - Start recording dialog
   - Opts persistence
-  - Spinners -> choice dialog (MaterialAlertDialogBuilder.setSingleChoiceItems())
   - QTH options (-> dialog)
 - Wake lock? (Needed?)
 - Unit test FT-891 CAT parsing
-- Handle no audio device found
+- AAC stream not finalized properly
+- Fix NumSatellites.usedInFix?
 - Extract strings to resources
 - Logcat collection
 - Theme / colours
@@ -39,3 +38,5 @@ FT-891 meter CAT reading have been yielding weird / unreliable numbers - not use
 - Decouple num satellites from Location (display num before fix)
 - Disable display rotation
 - Error handling in StartRecAct serial opening
+- Spinners -> choice dialog (MaterialAlertDialogBuilder.setSingleChoiceItems())
+- Handle no audio device found

@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Five9 Record</string>
     <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
@@ -21,18 +20,17 @@
         molestie nibh. Phasellus at commodo eros, non aliquet metus. Sed maximus nisl nec dolor
         bibendum, vel congue leo egestas.
     </string>
+
     <string name="record">Record</string>
     <string name="recording">Recording</string>
     <string name="serial_port">USB serial device:</string>
     <string name="radio">Radio:</string>
     <string name="audio_input">Audio input:</string>
-
-    <string-array name="radio_spinner_items">
-        <item>Yaesu FT-891</item>
-    </string-array>
     <string name="title_activity_recording">RecordingActivity</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="no_serial_ports_found">No serial ports found.</string>
     <string name="baud_rate">Baud rate:</string>
+    <string name="start_recording">Start Recording</string>
+    <string name="new_recording">New Recording</string>
 </resources>

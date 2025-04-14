@@ -30,10 +30,8 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        val textFirst = findViewById<TextView>(R.id.textview_first)
-
         // TODO: change fab text if recording is in progress?
-        binding.fab.setOnClickListener { record() }
+        binding.btnRecord.setOnClickListener { record() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
