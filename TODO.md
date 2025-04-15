@@ -7,6 +7,7 @@
   - QTH options (-> dialog)
 - Wake lock? (Needed?)
 - Unit test FT-891 CAT parsing
+- AOR AR8200 implementation
 - AAC stream not finalized properly
 - Fix NumSatellites.usedInFix?
 - Extract strings to resources

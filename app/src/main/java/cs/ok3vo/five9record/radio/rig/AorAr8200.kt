@@ -23,10 +23,12 @@ class AorAr8200(
 
     companion object: RadioCompanion {
         override val name = "AOR AR82000"
-        override val baudRates: Array<Int>
-            get() = TODO("Not yet implemented")
-        override val baudRateHint: String?
-            get() = TODO("Not yet implemented")
+        override val baudRates = arrayOf(
+            4800,
+            9600,
+            19200,
+        )
+        override val baudRateHint = null // TODO
 
         override fun startIo(serial: OpenSerialDevice, baudRate: Int): RadioIo {
             TODO("Not yet implemented")
