@@ -46,6 +46,10 @@ class YaesuFt891(
         val tx = catQuery(Cat.Tx)
         val power = catQuery(Cat.ConfigPower.Query(info.menuPowerEntry))
 
+        if (info.mode.isAmOrSsb()) {
+            ensureMonitorOn()
+        }
+
         return RadioData(
             rig = name,
             freq = info.freq,
@@ -65,6 +69,18 @@ class YaesuFt891(
         val resp = catQuery(Cat.Identification)
         if (resp.id != CAT_ID) {
             throw RadioIdMismatch(name)
+        }
+    }
+
+    /**
+     * If monitor is turned off, turn it on at level zero.
+     * This is done for SSB & AM to ensure audio on the DATA connector.
+     */
+    private fun ensureMonitorOn() {
+        val monitor = catQuery(Cat.MonitorSwitch)
+        if (!monitor.on) {
+            catCmd(Cat.MonitorLevel(0))
+            catCmd(Cat.MonitorSwitch(true))
         }
     }
 
@@ -231,6 +247,11 @@ private class Cat {
             }
         }
     }
+}
+
+private fun Mode.isAmOrSsb() = when(this) {
+    Mode.LSB, Mode.USB, Mode.AM -> true
+    else -> false
 }
 
 private fun Mode.Companion.fromFt891Info(id: String): Mode =
