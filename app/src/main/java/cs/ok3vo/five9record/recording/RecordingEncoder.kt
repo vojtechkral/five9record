@@ -11,10 +11,10 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.os.Process
-import android.util.Log
 import android.view.Surface
 import cs.ok3vo.five9record.render.StatusRenderer
 import cs.ok3vo.five9record.util.Mutex
+import cs.ok3vo.five9record.util.logD
 import cs.ok3vo.five9record.util.logE
 import cs.ok3vo.five9record.util.logI
 import cs.ok3vo.five9record.util.logW
@@ -168,25 +168,16 @@ class RecordingEncoder(
 
                 sleep(radioDelay.toLong())
             }
+
+            finalizeStream()
         } finally {
             logI("Video thread wrapping up")
-
-            drainBuffers(eos = true)
             codec.stop()
             codec.release()
             surface.release()
         }
 
-        private fun drainBuffers(eos: Boolean = false) {
-            if (eos) {
-                try {
-                    codec.signalEndOfInputStream()
-                } catch (_: IllegalStateException) {
-                    // codec already not executing
-                    return
-                }
-            }
-
+        private fun drainBuffers() {
             while (true) {
                 val bufferId = codec.dequeueOutputBuffer(bufferInfo, VIDEO_BUFFER_TIMEOUT)
 
@@ -226,6 +217,17 @@ class RecordingEncoder(
                     else -> { /* ignored */ }
                 }
             }
+        }
+
+        private fun finalizeStream() {
+            try {
+                codec.signalEndOfInputStream()
+            } catch (_: IllegalStateException) {
+                // codec already not executing
+                return
+            }
+
+            drainBuffers()
         }
 
         private fun enqueuePts(timestamp: Instant): Long {
@@ -294,7 +296,7 @@ class RecordingEncoder(
                 drainBuffers()
             }
 
-            drainBuffers(eos = true)
+            finalizeStream()
         } finally {
             logI("Audio thread wrapping up")
             audioRecord.stop()
@@ -322,7 +324,7 @@ class RecordingEncoder(
             // Write audio data to the codec
             var offset = 0
             while (offset < sizeRead) {
-                val inBufferId = codec.dequeueInputBuffer(AUDIO_READ_TIMEOUT)
+                val inBufferId = codec.dequeueInputBuffer(AUDIO_BUFFER_TIMEOUT)
 
                 if (inBufferId < 0) {
                     // no buffer currently available
@@ -336,12 +338,13 @@ class RecordingEncoder(
                 inBuffer.put(recBuffer, offset, putSize)
                 offset += putSize
 
+                val pts = pts
                 codec.queueInputBuffer(inBufferId, 0, putSize, pts, 0)
                 samplesRead += putSize / 2  // 16bit PCM => 1 sample = 2 bytes
             }
         }
 
-        private fun drainBuffers(eos: Boolean = false) {
+        private fun drainBuffers() {
             while (true) {
                 val bufferId = codec.dequeueOutputBuffer(bufferInfo, AUDIO_BUFFER_TIMEOUT)
 
@@ -358,6 +361,11 @@ class RecordingEncoder(
                     }
 
                     codec.releaseOutputBuffer(bufferId, false)
+
+                    if (bufferInfo.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM > 0) {
+                        logD("BUFFER_FLAG_END_OF_STREAM received, terminating codec loop")
+                        break
+                    }
                 }
 
                 when (bufferId) {
@@ -371,25 +379,26 @@ class RecordingEncoder(
                     else -> { /* ignored */ }
                 }
             }
+        }
 
-            if (eos) {
-                try {
-                    var inBufferId = -1
-                    // Try to get an input buffer:
-                    for (i in 1..100) {
-                        inBufferId = codec.dequeueInputBuffer(AUDIO_READ_TIMEOUT)
-                        if (inBufferId >= 0) {
-                            break
-                        }
-                    }
+        /**
+         * Despite all my efforts, this actually still doesn't properly finalize the AAC stream.
+         * Tried everything, no idea why it's still not finalized. Might be a muxing problem.
+         */
+        private fun finalizeStream() {
+            drainBuffers()
 
-                    codec.queueInputBuffer(inBufferId, 0, 0, pts, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
-                    // Perform the drain again to apply the ending sequence:
-                    drainBuffers(false)
-                } catch (_: IllegalStateException) {
-                    // codec already not executing
-                }
+            val inBufferId = codec.dequeueInputBuffer(AUDIO_BUFFER_TIMEOUT)
+            if (inBufferId >= 0) {
+                val inBuffer = codec.getInputBuffer(inBufferId)!! // FIXME: handle null
+                inBuffer.clear()
+                codec.queueInputBuffer(inBufferId, 0, 0, pts, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
+            } else {
+                logE("could not get input buffer to finalize stream: $inBufferId")
             }
+
+            // Drain buffers again to apply the ending sequence:
+            drainBuffers()
         }
     }
 
@@ -403,7 +412,6 @@ class RecordingEncoder(
 
         private const val AUDIO_SAMPLE_RATE = 44100
         private const val AUDIO_RATE = 128_000  // FIXME: configurable?
-        private const val AUDIO_READ_TIMEOUT = 10_000L
         private const val AUDIO_BUFFER_TIMEOUT = 10_000L
 
         private const val META_MIME_TYPE = "application/json"

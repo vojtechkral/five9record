@@ -17,6 +17,8 @@
 - Config option for coarse GNSS / gridsquare only / no QTH (privacy)
   - In meta track too
   - Android has the "approximate location" feature, cf. the permission dialog
+- Mux to MKV? https://github.com/Matroska-Org/jebml
+  - eg.: https://gitlab.com/axet/android-audio-library/-/blob/master/src/main/java/com/github/axet/audiolibrary/encoders/FormatMKA_AAC.java
 
 # Notes
 

@@ -7,10 +7,8 @@ import android.content.pm.PackageManager
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
-import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import cs.ok3vo.five9record.R
 import cs.ok3vo.five9record.databinding.ActivityStartRecordingBinding
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.radio.RadioType
