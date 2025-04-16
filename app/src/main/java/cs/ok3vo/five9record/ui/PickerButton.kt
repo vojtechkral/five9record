@@ -43,14 +43,12 @@ class PickerButton @JvmOverloads constructor(
             isEnabled = true
         }
 
-        selected = 0
-        updateLabel()
+        select(0)
         dialog = MaterialAlertDialogBuilder(context)
             .setTitle(dialogTitle)
             .setSingleChoiceItems(names, 0) {
                 dialog, newSel ->
-                selected = newSel
-                updateLabel()
+                select(newSel)
                 dialog.dismiss()
                 onItemSelectedCb?.let { it(newSel, selectedItem) }
             }
@@ -58,11 +56,24 @@ class PickerButton @JvmOverloads constructor(
             .create()
     }
 
-    private fun updateLabel() {
-        text = items[selected].toString()
+    fun select(itemIndex: Int) {
+        if (itemIndex >= 0 && itemIndex < items.size) {
+            selected = itemIndex
+            text = items[selected].toString()
+        }
     }
 
     fun onItemSelected(cb: (Int, Any?) -> Unit) {
         onItemSelectedCb = cb
+    }
+
+    inline fun<reified T> selectItemIf(predicate: (T) -> Boolean) {
+        for ((i, item) in items.withIndex()) {
+            val itemT = item as? T
+            if (itemT != null && predicate(itemT)) {
+                select(i)
+                return
+            }
+        }
     }
 }

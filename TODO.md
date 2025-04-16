@@ -1,22 +1,22 @@
 # TODO
 
-- DRY out catQuery/catCmd?
 - Error handling UI - produce a notification on error while recording
 - Start recording dialog
   - Opts persistence
   - QTH options (-> dialog)
-- Wake lock? (Needed?)
+- Wake lock? (Needed? -> likely not due to foreground service)
 - Unit test FT-891 CAT parsing
 - AOR AR8200 implementation
-- AAC stream not finalized properly
 - Fix NumSatellites.usedInFix?
 - Extract strings to resources
 - Logcat collection
 - Theme / colours
 - Bump deps
+- DRY out catQuery/catCmd?
 - Config option for coarse GNSS / gridsquare only / no QTH (privacy)
   - In meta track too
   - Android has the "approximate location" feature, cf. the permission dialog
+- AAC stream not finalized properly
 - Mux to MKV? https://github.com/Matroska-Org/jebml
   - eg.: https://gitlab.com/axet/android-audio-library/-/blob/master/src/main/java/com/github/axet/audiolibrary/encoders/FormatMKA_AAC.java
 

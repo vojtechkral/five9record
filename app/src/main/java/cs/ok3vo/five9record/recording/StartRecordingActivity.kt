@@ -2,6 +2,7 @@ package cs.ok3vo.five9record.recording
 
 import android.Manifest.permission
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build.VERSION.SDK_INT
@@ -21,15 +22,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class StartRecordingActivity : AppCompatActivity() {
+class StartRecordingActivity: AppCompatActivity() {
     private val binding: ActivityStartRecordingBinding by lazy {
         ActivityStartRecordingBinding.inflate(layoutInflater)
     }
     private val usb: Usb by lazy { Usb(this) }
     private val audioDevs: AudioDevices by lazy { AudioDevices(this) }
     private val permsRequestResults = Channel<IntArray>()
+    private val prefs by lazy { getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE) }
 
-    private val radio: RadioType get() = binding.pickerRadio.selectedItem as RadioType
+    private val radio get() = binding.pickerRadio.selectedItem as RadioType
+    private val baudRate get() = binding.pickerBaudRate.selectedItem as BaudRateUi
+    private val audioDevice get() = binding.pickerAudio.selectedItem as AudioDeviceInfoUi?
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (Radio.isRunning) {
@@ -53,9 +57,13 @@ class StartRecordingActivity : AppCompatActivity() {
         binding.btnStartRecording.setOnClickListener {
             lifecycleScope.launch { startRecording() }
         }
+
+        loadChoices()
     }
 
     private suspend fun startRecording() {
+        saveChoices()
+
         if (!ensurePermissions()) {
             return
         }
@@ -77,7 +85,7 @@ class StartRecordingActivity : AppCompatActivity() {
             return
         }
 
-        val audio = binding.pickerAudio.selectedItem as AudioDeviceInfoUi?
+        val audio = audioDevice
         if (audio == null) {
             AlertDialog.Builder(this)
                 .setTitle("Cannot start recording")
@@ -136,8 +144,6 @@ class StartRecordingActivity : AppCompatActivity() {
      * and due to waiting on Radio.start().
      */
     private suspend fun startRadioIo(radio: RadioType, serial: SerialDevice?) {
-        val baudRate = binding.pickerBaudRate.selectedItem as BaudRateUi
-
         if (radio != RadioType.MOCKED) {
             val openSerial = usb.openSerial(serial!!) // serial known to be non-null at this point
             withContext(Dispatchers.IO) {
@@ -152,6 +158,22 @@ class StartRecordingActivity : AppCompatActivity() {
     private fun refreshBaudRates() {
         val baudRates = radio.companion.baudRates
         binding.pickerBaudRate.items = baudRates.map { BaudRateUi(it) }
+    }
+
+    private fun loadChoices() {
+        val savedRadio = prefs.getInt(PREF_RADIO, -1)
+        binding.pickerRadio.selectItemIf<RadioType> { it.ordinal == savedRadio }
+        val savedRate = prefs.getInt(PREF_BAUD_RATE, -1)
+        binding.pickerBaudRate.selectItemIf<BaudRateUi> { it.rate == savedRate }
+        val savedAudioDev = prefs.getInt(PREF_AUDIO, -1)
+        binding.pickerAudio.selectItemIf<AudioDeviceInfoUi> { it.id == savedAudioDev }
+    }
+
+    private fun saveChoices() = with(prefs.edit()) {
+        putInt(PREF_RADIO, radio.ordinal)
+        putInt(PREF_BAUD_RATE, baudRate.rate)
+        audioDevice?.let { putInt(PREF_AUDIO, it.id) }
+        commit()
     }
 
     private suspend fun ensurePermissions(): Boolean {
@@ -211,6 +233,13 @@ class StartRecordingActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permsRequestResults.trySend(grantResults)
+    }
+
+    companion object {
+        const val PREFS_NAME = "StartRecordingActivity"
+        const val PREF_RADIO = "radio"
+        const val PREF_BAUD_RATE = "baud_rate"
+        const val PREF_AUDIO = "audio_input"
     }
 }
 
