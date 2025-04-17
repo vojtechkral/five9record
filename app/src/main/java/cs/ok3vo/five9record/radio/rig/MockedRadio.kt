@@ -2,7 +2,6 @@ package cs.ok3vo.five9record.radio.rig
 
 import cs.ok3vo.five9record.radio.Mode
 import cs.ok3vo.five9record.radio.OpenSerialDevice
-import cs.ok3vo.five9record.radio.RadioCompanion
 import cs.ok3vo.five9record.radio.RadioData
 import cs.ok3vo.five9record.radio.RadioIo
 import kotlin.random.Random
@@ -12,7 +11,7 @@ class MockedRadio: RadioIo {
 
     override fun close() {}
 
-    companion object: RadioCompanion {
+    companion object: RadioIo.Companion {
         override val name = "Emulated radio"
         override val baudRates = arrayOf(4800)
         override val baudRateHint = null

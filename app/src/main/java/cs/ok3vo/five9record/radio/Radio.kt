@@ -7,14 +7,14 @@ import java.io.Closeable
 
 interface RadioIo: Closeable {
     fun readRadioData(): RadioData?
-}
 
-interface RadioCompanion {
-    val name: String
-    val baudRates: Array<Int>
-    val baudRateHint: String?
+    interface Companion {
+        val name: String
+        val baudRates: Array<Int>
+        val baudRateHint: String?
 
-    fun startIo(serial: OpenSerialDevice, baudRate: Int): RadioIo
+        fun startIo(serial: OpenSerialDevice, baudRate: Int): RadioIo
+    }
 }
 
 enum class RadioType {
@@ -31,7 +31,7 @@ enum class RadioType {
     fun startIo(serial: OpenSerialDevice, baudRate: Int): RadioIo
         = companion.startIo(serial, baudRate)
 
-    val companion: RadioCompanion get() = when (this) {
+    val companion: RadioIo.Companion get() = when (this) {
         YAESU_FT_891 -> YaesuFt891.Companion
         AOR_AR8200 -> AorAr8200.Companion
         MOCKED -> MockedRadio.Companion

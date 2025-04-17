@@ -9,7 +9,6 @@ import cs.ok3vo.five9record.radio.AsciiCatQuery
 import cs.ok3vo.five9record.radio.CatSerialError
 import cs.ok3vo.five9record.radio.Mode
 import cs.ok3vo.five9record.radio.OpenSerialDevice
-import cs.ok3vo.five9record.radio.RadioCompanion
 import cs.ok3vo.five9record.radio.RadioData
 import cs.ok3vo.five9record.radio.RadioIdMismatch
 import cs.ok3vo.five9record.radio.RadioIo
@@ -110,7 +109,7 @@ class YaesuFt891(
             ?: throw CatSerialError("Failed to parse response as ${Resp::class.simpleName}: `$response`")
     }
 
-    companion object: RadioCompanion {
+    companion object: RadioIo.Companion {
         override val name = "Yaesu FT-891"
         override val baudRates = arrayOf(
             4800,
