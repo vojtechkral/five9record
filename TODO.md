@@ -1,8 +1,8 @@
 # TODO
 
+- Recordings browser
 - Error handling UI - produce a notification on error while recording
 - Start recording dialog
-  - Opts persistence
   - QTH options (-> dialog)
 - Wake lock? (Needed? -> likely not due to foreground service)
 - Unit test FT-891 CAT parsing
@@ -43,3 +43,4 @@ FT-891 meter CAT reading have been yielding weird / unreliable numbers - not use
 - Error handling in StartRecAct serial opening
 - Spinners -> choice dialog (MaterialAlertDialogBuilder.setSingleChoiceItems())
 - Handle no audio device found
+- Start recording dialog Opts persistence

@@ -96,8 +96,11 @@ class StartRecordingActivity: AppCompatActivity() {
             return
         }
 
+        val startupData = RecordingService.StartupData(
+            audioDevice = audio.id,
+        )
         val svcIntent = Intent(this, RecordingService::class.java)
-            .apply { putExtra(RecordingService.INTENT_AUDIO_DEVICE, audio.id) }
+            .apply { putExtra(RecordingService.INTENT_STARTUP_DATA, startupData) }
         val activityIntent = Intent(this, RecordingActivity::class.java)
 
         val dgConnecting = AlertDialog

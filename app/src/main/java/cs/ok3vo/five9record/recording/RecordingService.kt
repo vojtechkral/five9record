@@ -12,6 +12,7 @@ import android.location.GnssStatus
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.core.app.NotificationCompat
 import cs.ok3vo.five9record.location.LocationStatus
 import cs.ok3vo.five9record.radio.Radio
@@ -25,18 +26,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicBoolean
 
 // TODO: wake lock?, see MyLocation
 
-class RecordingService : Service() {
+class RecordingService: Service() {
     private val renderer by lazy { StatusRenderer(this) }
     private val locationManager by lazy { getSystemService(LOCATION_SERVICE) as LocationManager }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // Sanitize intent
-        if (intent == null || !intent.hasExtra(INTENT_AUDIO_DEVICE)) {
+        if (intent == null || !intent.hasExtra(INTENT_STARTUP_DATA)) {
             // Likely being restarted by system, don't start up.
             logW("Empty Intent, not starting up")
             stopSelf()
@@ -61,11 +63,16 @@ class RecordingService : Service() {
         startForeground(1, createNotification())
         startLocationUpdates()
 
-        val audioDevice = intent.getIntExtra(INTENT_AUDIO_DEVICE, 0)
+        @Suppress("DEPRECATION") // new method only from Tiramisu and up
+        val startupData = intent.getParcelableExtra<StartupData>(INTENT_STARTUP_DATA)
+        if (startupData == null) {
+            logW("Intent doesn't carry StartupData, not starting up")
+            return stop()
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                runRecording(audioDevice)
+                runRecording(startupData)
             } catch (e: Exception) {
                 logE(RecordingService::class, "recording stopped with a failure", e)
                 channel.trySend(Result.failure(e))
@@ -132,8 +139,9 @@ class RecordingService : Service() {
         locationManager.registerGnssStatusCallback(locationListener, null)
     }
 
-    private fun runRecording(audioDevice: Int) {
+    private fun runRecording(startupData: StartupData) {
         val filename = recordingFilename()
+        val audioDevice = startupData.audioDevice
         val encoder = RecordingEncoder(
             context = this,
             renderer = renderer,
@@ -211,8 +219,13 @@ class RecordingService : Service() {
         }
     }
 
+    @Parcelize
+    data class StartupData(
+        val audioDevice: Int,
+    ): Parcelable
+
     companion object {
-        const val INTENT_AUDIO_DEVICE = "audio_device"
+        const val INTENT_STARTUP_DATA = "startup_data"
         const val GPS_MIN_TIME_MS = 10_000L
         const val GPS_MIN_DISTANCE_M = 10.0f
 
