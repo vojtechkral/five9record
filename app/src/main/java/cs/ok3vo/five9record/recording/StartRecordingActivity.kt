@@ -1,7 +1,6 @@
 package cs.ok3vo.five9record.recording
 
 import android.Manifest.permission
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,6 +9,7 @@ import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import cs.ok3vo.five9record.databinding.ActivityStartRecordingBinding
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.radio.RadioType
@@ -71,7 +71,7 @@ class StartRecordingActivity: AppCompatActivity() {
         val radio = radio
         val serial = binding.pickerSerial.selectedItem as? SerialDevice?
         if (serial == null && radio != RadioType.MOCKED) {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Cannot start recording")
                 .setMessage(
                     """Cannot start recording without a connected USB serial port.
@@ -87,7 +87,7 @@ class StartRecordingActivity: AppCompatActivity() {
 
         val audio = audioDevice
         if (audio == null) {
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Cannot start recording")
                 .setMessage("Cannot start recording without an audio input device.")
                 .setPositiveButton("Back") { dialog, _ -> dialog.dismiss() }
@@ -103,8 +103,7 @@ class StartRecordingActivity: AppCompatActivity() {
             .apply { putExtra(RecordingService.INTENT_STARTUP_DATA, startupData) }
         val activityIntent = Intent(this, RecordingActivity::class.java)
 
-        val dgConnecting = AlertDialog
-            .Builder(this)
+        val dgConnecting = MaterialAlertDialogBuilder(this)
             .setTitle("Connecting...")
             .setMessage("Connecting to $radio")
             .show()
@@ -121,9 +120,7 @@ class StartRecordingActivity: AppCompatActivity() {
                 ""
             }
 
-            // TODO: A nicer error dialog?
-            AlertDialog
-                .Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setTitle("Error")
                 .setMessage("Could not connect to radio:\n\n${e.message}.$hint")
                 .setPositiveButton("Ok") {
@@ -208,7 +205,7 @@ class StartRecordingActivity: AppCompatActivity() {
                 if (result == PackageManager.PERMISSION_DENIED) {
                     val perm = toRequest[i].split('.').last()
 
-                    AlertDialog.Builder(this)
+                    MaterialAlertDialogBuilder(this)
                         .setTitle("Permission Error")
                         .setMessage(
                             """The following permission was not granted:

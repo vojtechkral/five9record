@@ -24,11 +24,10 @@ import cs.ok3vo.five9record.util.logI
 import cs.ok3vo.five9record.util.logW
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
 
 // TODO: wake lock?, see MyLocation
 
@@ -46,7 +45,7 @@ class RecordingService: Service() {
         }
 
         // Check this is the only instance
-        if (!running.compareAndSet(false, true)) {
+        if (!setStateStartup()) {
             logE("Another RecordingService is already running, not starting up")
             return stop()
         }
@@ -55,7 +54,7 @@ class RecordingService: Service() {
         if (!Radio.isRunning) {
             val msg = "Radio I/O not running while RecordingService starting up"
             logE(msg)
-            channel.trySend(Result.failure(IllegalStateException(msg)))
+            setError(IllegalStateException(msg))
             return stop()
         }
 
@@ -75,7 +74,7 @@ class RecordingService: Service() {
                 runRecording(startupData)
             } catch (e: Exception) {
                 logE(RecordingService::class, "recording stopped with a failure", e)
-                channel.trySend(Result.failure(e))
+                setError(e)
             } finally {
                 stop()
             }
@@ -89,6 +88,21 @@ class RecordingService: Service() {
     override fun onDestroy() {
         super.onDestroy()
         locationManager.removeUpdates(locationListener)
+    }
+
+    private fun setStateStartup(): Boolean {
+        return statePrivate.compareAndSet(State.Stopped, State.StartingUp)
+            || statePrivate.compareAndSet(State.Error, State.StartingUp)
+    }
+
+    private fun setStatusData(data: StatusData) {
+        State.Running.statusData.set(data)
+        statePrivate.set(State.Running)
+    }
+
+    private fun setError(e: Exception) {
+        State.Error.error.set(e)
+        statePrivate.set(State.Error)
     }
 
     private fun createNotification(): Notification {
@@ -165,7 +179,7 @@ class RecordingService: Service() {
                 location = locationListener.getLastLocation(),
             )
 
-            channel.trySend(Result.success(statusData))
+            setStatusData(statusData)
             statusData
         }
 
@@ -173,7 +187,8 @@ class RecordingService: Service() {
     }
 
     private fun stop(): Int {
-        running.set(false)
+        statePrivate.compareAndSet(State.StartingUp, State.Stopped)
+        statePrivate.compareAndSet(State.Running, State.Stopped)
         stopSelf()
         return START_NOT_STICKY
     }
@@ -224,16 +239,34 @@ class RecordingService: Service() {
         val audioDevice: Int,
     ): Parcelable
 
+    sealed class State {
+        /** Ground state. */
+        data object Stopped: State()
+        /**
+         * After service has started but before recording actually starts and
+         * status data becomes available.
+         */
+        data object StartingUp: State()
+
+        /** Recording running, status data are being published. */
+        data object Running: State() {
+            val statusData: AtomicReference<StatusData> = AtomicReference(StatusData.dummyValue)
+        }
+
+        /** Recording ended with an error. */
+        data object Error: State() {
+            val error: AtomicReference<Exception> = AtomicReference(RuntimeException())
+        }
+    }
+
     companion object {
         const val INTENT_STARTUP_DATA = "startup_data"
         const val GPS_MIN_TIME_MS = 10_000L
         const val GPS_MIN_DISTANCE_M = 10.0f
 
-        private val running = AtomicBoolean(false)
         private val filenameFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
-        private val channel = Channel<Result<StatusData>>(capacity = Channel.UNLIMITED)
 
-        fun isRunning() = running.get()
-        suspend fun receiveStatusData(): Result<StatusData> = channel.receive()
+        private val statePrivate: AtomicReference<State> = AtomicReference(State.Stopped)
+        val state get() = statePrivate.get()
     }
 }

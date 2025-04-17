@@ -4,11 +4,13 @@
 - Error handling UI - produce a notification on error while recording
 - Start recording dialog
   - QTH options (-> dialog)
+- FIXMEs
 - Wake lock? (Needed? -> likely not due to foreground service)
 - Unit test FT-891 CAT parsing
 - AOR AR8200 implementation
 - Fix NumSatellites.usedInFix?
 - Extract strings to resources
+- Configurable codec bitrates?
 - Logcat collection
 - Theme / colours
 - Bump deps

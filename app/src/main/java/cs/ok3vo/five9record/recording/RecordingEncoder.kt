@@ -316,9 +316,8 @@ class RecordingEncoder(
             if (sizeRead == 0) {
                 return
             } else if (sizeRead < 0) {
-                // FIXME: match on error cases
                 logE("AudioRecord.read error: $sizeRead")
-                return
+                "Error reading audio data: $sizeRead".throwError()
             }
 
             // Write audio data to the codec
@@ -332,7 +331,8 @@ class RecordingEncoder(
                     return
                 }
 
-                val inBuffer = codec.getInputBuffer(inBufferId)!! // FIXME: handle null
+                val inBuffer = codec.getInputBuffer(inBufferId)
+                    ?: "Received invalid audio codec input buffer".throwError()
                 inBuffer.clear()
                 val putSize = min(inBuffer.remaining(), sizeRead - offset)
                 inBuffer.put(recBuffer, offset, putSize)
@@ -390,7 +390,8 @@ class RecordingEncoder(
 
             val inBufferId = codec.dequeueInputBuffer(AUDIO_BUFFER_TIMEOUT)
             if (inBufferId >= 0) {
-                val inBuffer = codec.getInputBuffer(inBufferId)!! // FIXME: handle null
+                val inBuffer = codec.getInputBuffer(inBufferId)
+                    ?: "Received invalid audio codec input buffer".throwError()
                 inBuffer.clear()
                 codec.queueInputBuffer(inBufferId, 0, 0, pts, MediaCodec.BUFFER_FLAG_END_OF_STREAM)
             } else {
@@ -473,8 +474,6 @@ abstract class TrackThread(
     }
 
     protected fun ensureMuxerStarted() {
-        // FIXME: error handling can be tested by not starting the muxer, that makes writeData not work
-
         // muxer can only be started once all tracks have been added:
         stateSync.tracksLatch.await()
         if (stateSync.muxerStarted.compareAndSet(false, true)) {
