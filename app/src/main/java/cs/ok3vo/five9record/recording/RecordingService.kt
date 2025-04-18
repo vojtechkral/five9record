@@ -119,10 +119,7 @@ class RecordingService: Service() {
         = NotificationBuilder(
             context = this,
             title = "Recording Error",
-            text = """The recording was stopped due to an error:
-                |
-                |${e.message}
-            """.trimMargin(),
+            text = "The recording was stopped due to an error:\n${e.message}",
             icon = R.drawable.stat_notify_error,
             silent = false,
             ongoing = false,

@@ -163,6 +163,8 @@ class StartRecordingActivity: AppCompatActivity() {
     private fun loadChoices() {
         val savedRadio = prefs.getInt(PREF_RADIO, -1)
         binding.pickerRadio.selectItemIf<RadioType> { it.ordinal == savedRadio }
+        refreshBaudRates()
+
         val savedRate = prefs.getInt(PREF_BAUD_RATE, -1)
         binding.pickerBaudRate.selectItemIf<BaudRateUi> { it.rate == savedRate }
         val savedAudioDev = prefs.getInt(PREF_AUDIO, -1)

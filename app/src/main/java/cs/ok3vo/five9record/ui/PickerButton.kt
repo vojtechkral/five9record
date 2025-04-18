@@ -6,6 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import cs.ok3vo.five9record.R
+import kotlin.math.max
 
 class PickerButton @JvmOverloads constructor(
     context: Context,
@@ -31,8 +32,6 @@ class PickerButton @JvmOverloads constructor(
     }
 
     private fun rebuildItems() {
-        val names = items.map { it.toString() }.toTypedArray()
-
         if (items.isEmpty()) {
             selected = -1
             dialog = null
@@ -44,9 +43,15 @@ class PickerButton @JvmOverloads constructor(
         }
 
         select(0)
+        rebuildDialog()
+    }
+
+    private fun rebuildDialog() {
+        val names = items.map { it.toString() }.toTypedArray()
+
         dialog = MaterialAlertDialogBuilder(context)
             .setTitle(dialogTitle)
-            .setSingleChoiceItems(names, 0) {
+            .setSingleChoiceItems(names, max(selected, 0)) {
                 dialog, newSel ->
                 select(newSel)
                 dialog.dismiss()
@@ -60,6 +65,7 @@ class PickerButton @JvmOverloads constructor(
         if (itemIndex >= 0 && itemIndex < items.size) {
             selected = itemIndex
             text = items[selected].toString()
+            rebuildDialog()
         }
     }
 

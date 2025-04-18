@@ -4,7 +4,7 @@
 - Start recording dialog
   - QTH options (-> dialog)
 - FIXMEs
-- Wake lock? (Needed? -> likely not due to foreground service)
+- Wake lock (fix silent recording)
 - Unit test FT-891 CAT parsing
 - AOR AR8200 implementation
 - Fix NumSatellites.usedInFix?
