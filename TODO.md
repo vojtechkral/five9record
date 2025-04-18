@@ -1,7 +1,6 @@
 # TODO
 
 - Recordings browser
-- Error handling UI - produce a notification on error while recording
 - Start recording dialog
   - QTH options (-> dialog)
 - FIXMEs
@@ -46,3 +45,4 @@ FT-891 meter CAT reading have been yielding weird / unreliable numbers - not use
 - Spinners -> choice dialog (MaterialAlertDialogBuilder.setSingleChoiceItems())
 - Handle no audio device found
 - Start recording dialog Opts persistence
+- Error handling UI - produce a notification on error while recording

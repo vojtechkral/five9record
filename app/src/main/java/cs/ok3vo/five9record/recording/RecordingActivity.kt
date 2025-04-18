@@ -117,7 +117,7 @@ class RecordingActivity : AppCompatActivity() {
         errorDialog = MaterialAlertDialogBuilder(this)
             .setTitle("Recording Error")
             .setMessage(
-                """There was an error while recording:
+                """The recording was stopped due to an error:
                     |
                     |${e.message}
                 """.trimMargin()

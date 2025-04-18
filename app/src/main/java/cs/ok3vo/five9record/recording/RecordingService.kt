@@ -1,14 +1,12 @@
-package cs.ok3vo.five9record.recording
+    package cs.ok3vo.five9record.recording
 
 import android.Manifest
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.R
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.GnssStatus
+import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
@@ -17,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import cs.ok3vo.five9record.location.LocationStatus
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.render.StatusRenderer
+import cs.ok3vo.five9record.ui.NotificationBuilder
 import cs.ok3vo.five9record.util.Mutex
 import cs.ok3vo.five9record.util.Utc
 import cs.ok3vo.five9record.util.logE
@@ -26,10 +25,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import java.nio.file.attribute.FileStoreAttributeView
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicReference
-
-// TODO: wake lock?, see MyLocation
 
 class RecordingService: Service() {
     private val renderer by lazy { StatusRenderer(this) }
@@ -59,7 +57,7 @@ class RecordingService: Service() {
         }
 
         logI("Starting recording service...")
-        startForeground(1, createNotification())
+        startForeground(1, serviceNotification())
         startLocationUpdates()
 
         @Suppress("DEPRECATION") // new method only from Tiramisu and up
@@ -75,6 +73,7 @@ class RecordingService: Service() {
             } catch (e: Exception) {
                 logE(RecordingService::class, "recording stopped with a failure", e)
                 setError(e)
+                errorNotification(e)
             } finally {
                 stop()
             }
@@ -105,35 +104,32 @@ class RecordingService: Service() {
         statePrivate.set(State.Error)
     }
 
-    private fun createNotification(): Notification {
-        val channelId = "five9record_channel"
-        val channelName = "Five9 Record Service"
+    private fun serviceNotification()
+        = NotificationBuilder(
+            context = this,
+            title = "Recording in Progress",
+            text = "Five9 Record is recording an operation",
+            icon = R.drawable.stat_notify_voicemail,
+            silent = true,
+            ongoing = true,
+            priority = NotificationCompat.PRIORITY_DEFAULT,
+            targetActivity = RecordingActivity::class,
+        ).build()
 
-        val notificationManager = getSystemService(NotificationManager::class.java)
-        val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-        notificationManager.createNotificationChannel(channel)
-
-        val intent = Intent(this, RecordingActivity::class.java)
-        val pi = PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-
-        return NotificationCompat.Builder(this, channelId)
-            .setSilent(true)
-            .setOnlyAlertOnce(true)
-            .setContentTitle("Recording in Progress")
-            .setContentText("Five9 Record is recording an operation")
-            .setSmallIcon(android.R.drawable.stat_notify_voicemail)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pi)
-            .setAutoCancel(false)
-            .setOngoing(true)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .build()
-    }
+    private fun errorNotification(e: Exception)
+        = NotificationBuilder(
+            context = this,
+            title = "Recording Error",
+            text = """The recording was stopped due to an error:
+                |
+                |${e.message}
+            """.trimMargin(),
+            icon = R.drawable.stat_notify_error,
+            silent = false,
+            ongoing = false,
+            priority = NotificationCompat.PRIORITY_MAX,
+            targetActivity = RecordingActivity::class,
+        ).notify()
 
     private fun startLocationUpdates() {
         if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -205,7 +201,7 @@ class RecordingService: Service() {
 
         fun setGnssEnabled(enabled: Boolean) = locationStatus.lock { gnssEnabled = enabled }
 
-        override fun onLocationChanged(location: android.location.Location) {
+        override fun onLocationChanged(location: Location) {
             logI(RecordingService::class, "received location: $location")
             locationStatus.lock {
                 position = LocationStatus.Position.fromAndroid(location)
