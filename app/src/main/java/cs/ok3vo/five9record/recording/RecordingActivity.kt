@@ -13,6 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import cs.ok3vo.five9record.databinding.ActivityRecordingBinding
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.render.StatusRenderer
+import cs.ok3vo.five9record.util.elapsed
 import cs.ok3vo.five9record.util.logE
 import cs.ok3vo.five9record.util.logI
 import kotlinx.coroutines.delay
@@ -77,7 +78,7 @@ class RecordingActivity : AppCompatActivity() {
     }
 
     private fun updateDuration() {
-        val duration = Duration.between(startTime, Instant.now())
+        val duration = startTime.elapsed()
         val hours = duration.toHours()
         val minutes = duration.toMinutes() % 60
         val seconds = duration.seconds % 60

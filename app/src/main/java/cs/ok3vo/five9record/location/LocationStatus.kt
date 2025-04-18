@@ -1,18 +1,13 @@
 package cs.ok3vo.five9record.location
 
-import android.location.GnssStatus
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class LocationStatus(
     var gnssEnabled: Boolean,
-    /**
-     * Current position coordinates, only non-null when position has been obtained.
-     */
+    /** Current position coordinates, only non-null when position has been obtained. */
     var position: Position?,
-    /**
-     * Current number of GNSS satellites observed.
-     */
+    /** Current number of GNSS satellites observed. */
     var numSatellites: NumSatellites,
 ) {
     // Not using default values because Json skips over them by default :/
@@ -78,13 +73,5 @@ data class LocationStatus(
     data class NumSatellites(
         val usedInFix: Int,
         val total: Int,
-    ) {
-        companion object {
-            fun fromAndroid(status: GnssStatus): NumSatellites {
-                val total = status.satelliteCount
-                val usedInFix = (0 ..< total).count { status.usedInFix(it) }
-                return NumSatellites(usedInFix = usedInFix, total = total)
-            }
-        }
-    }
+    )
 }

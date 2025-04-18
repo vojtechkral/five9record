@@ -6,22 +6,17 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
-import android.location.GnssStatus
-import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
-import android.os.Bundle
 import android.os.Parcelable
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
-import cs.ok3vo.five9record.location.LocationStatus
+import cs.ok3vo.five9record.location.LocationListener
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.render.StatusRenderer
 import cs.ok3vo.five9record.ui.NotificationBuilder
 import cs.ok3vo.five9record.ui.acquire
 import cs.ok3vo.five9record.ui.release
-import cs.ok3vo.five9record.util.Mutex
 import cs.ok3vo.five9record.util.Utc
 import cs.ok3vo.five9record.util.logE
 import cs.ok3vo.five9record.util.logI
@@ -209,41 +204,7 @@ class RecordingService: Service() {
         return "${timestamp}.mp4"
     }
 
-    private val locationListener = object : LocationListener, GnssStatus.Callback() {
-        private val locationStatus = Mutex(LocationStatus())
-
-        fun getLastLocation(): LocationStatus = locationStatus.lock { copy() }
-
-        fun setGnssEnabled(enabled: Boolean) = locationStatus.lock { gnssEnabled = enabled }
-
-        override fun onLocationChanged(location: Location) {
-            logI(RecordingService::class, "received location: $location")
-            locationStatus.lock {
-                position = LocationStatus.Position.fromAndroid(location)
-            }
-        }
-
-        @Deprecated("present for compatibility with older SDK levels")
-        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-
-        override fun onSatelliteStatusChanged(status: GnssStatus) {
-            locationStatus.lock {
-                numSatellites = LocationStatus.NumSatellites.fromAndroid(status)
-            }
-        }
-
-        override fun onProviderEnabled(provider: String) {
-            if (provider == LocationManager.GPS_PROVIDER) {
-                locationStatus.lock { gnssEnabled = true }
-            }
-        }
-
-        override fun onProviderDisabled(provider: String) {
-            if (provider == LocationManager.GPS_PROVIDER) {
-                locationStatus.lock { gnssEnabled = false }
-            }
-        }
-    }
+    private val locationListener = LocationListener()
 
     @Parcelize
     data class StartupData(

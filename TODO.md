@@ -6,7 +6,6 @@
 - FIXMEs
 - Unit test FT-891 CAT parsing
 - AOR AR8200 implementation
-- Fix NumSatellites.usedInFix?
 - Extract strings to resources
 - Configurable codec bitrates?
 - Display audio RMS in recording activity (val rms = sqrt(buffer.map { it * it }.average()))
@@ -47,3 +46,4 @@ FT-891 meter CAT reading have been yielding weird / unreliable numbers - not use
 - Start recording dialog Opts persistence
 - Error handling UI - produce a notification on error while recording
 - Wake lock (fix silent recording)
+- Fix NumSatellites.usedInFix?
