@@ -11,11 +11,14 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Parcelable
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import cs.ok3vo.five9record.location.LocationStatus
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.render.StatusRenderer
 import cs.ok3vo.five9record.ui.NotificationBuilder
+import cs.ok3vo.five9record.ui.acquire
+import cs.ok3vo.five9record.ui.release
 import cs.ok3vo.five9record.util.Mutex
 import cs.ok3vo.five9record.util.Utc
 import cs.ok3vo.five9record.util.logE
@@ -31,6 +34,8 @@ import java.util.concurrent.atomic.AtomicReference
 class RecordingService: Service() {
     private val renderer by lazy { StatusRenderer(this) }
     private val locationManager by lazy { getSystemService(LOCATION_SERVICE) as LocationManager }
+    private val powerManager by lazy { getSystemService(POWER_SERVICE) as PowerManager }
+    private var wakeLock = AtomicReference<PowerManager.WakeLock?>(null)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // Sanitize intent
@@ -86,6 +91,7 @@ class RecordingService: Service() {
     override fun onDestroy() {
         super.onDestroy()
         locationManager.removeUpdates(locationListener)
+        wakeLock.release()
     }
 
     private fun setStateStartup(): Boolean {
@@ -156,6 +162,8 @@ class RecordingService: Service() {
             radioDelay = 100, // FIXME: configurable
         )
 
+        wakeLock.acquire(powerManager, WAKE_LOCK_TAG)
+
         logI("starting recording with audio dev $audioDevice to file $filename")
         encoder.record {
             // We call into Radio directly from the video thread to read status and render it as closely
@@ -179,9 +187,13 @@ class RecordingService: Service() {
     }
 
     private fun stop(): Int {
+        wakeLock.release()
+
         Radio.stop() // in case recording was interrupted by a non-radio cause (error)
+
         statePrivate.compareAndSet(State.StartingUp, State.Stopped)
         statePrivate.compareAndSet(State.Running, State.Stopped)
+
         stopSelf()
         return START_NOT_STICKY
     }
@@ -257,6 +269,7 @@ class RecordingService: Service() {
         const val GPS_MIN_TIME_MS = 10_000L
         const val GPS_MIN_DISTANCE_M = 10.0f
 
+        private const val WAKE_LOCK_TAG = "five9record:recording"
         private val filenameFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
 
         private val statePrivate: AtomicReference<State> = AtomicReference(State.Stopped)
