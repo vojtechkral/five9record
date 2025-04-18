@@ -25,7 +25,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import java.nio.file.attribute.FileStoreAttributeView
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicReference
 
@@ -183,6 +182,7 @@ class RecordingService: Service() {
     }
 
     private fun stop(): Int {
+        Radio.stop() // in case recording was interrupted by a non-radio cause (error)
         statePrivate.compareAndSet(State.StartingUp, State.Stopped)
         statePrivate.compareAndSet(State.Running, State.Stopped)
         stopSelf()
@@ -263,6 +263,13 @@ class RecordingService: Service() {
         private val filenameFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
 
         private val statePrivate: AtomicReference<State> = AtomicReference(State.Stopped)
-        val state get() = statePrivate.get()
+        val state: State get() = statePrivate.get()
+
+        fun takeError(): Exception?
+            = if (statePrivate.compareAndSet(State.Error, State.Stopped)) {
+                State.Error.error.get()
+            } else {
+                null
+            }
     }
 }

@@ -68,7 +68,7 @@ class RecordingActivity : AppCompatActivity() {
             when (RecordingService.state) {
                 RecordingService.State.StartingUp -> { /* delay */ }
                 RecordingService.State.Running -> renderStatus()
-                RecordingService.State.Error -> throw RecordingService.State.Error.error.get()
+                RecordingService.State.Error -> RecordingService.takeError()?.let { throw it }
                 RecordingService.State.Stopped -> throw InterruptedException()
             }
 
