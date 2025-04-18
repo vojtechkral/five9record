@@ -5,10 +5,12 @@ import android.R
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo
 import android.location.GnssStatus
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.os.PowerManager
@@ -61,7 +63,11 @@ class RecordingService: Service() {
         }
 
         logI("Starting recording service...")
-        startForeground(1, serviceNotification())
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            startForeground(1, serviceNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
+        } else {
+            startForeground(1, serviceNotification())
+        }
         startLocationUpdates()
 
         @Suppress("DEPRECATION") // new method only from Tiramisu and up
