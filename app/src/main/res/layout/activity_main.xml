@@ -28,6 +28,6 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="20dp"
         android:text="@string/record"
-        app:icon="@android:drawable/stat_notify_voicemail" />
+        app:icon="@drawable/voicemail" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

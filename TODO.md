@@ -20,14 +20,16 @@
 - Mux to MKV? https://github.com/Matroska-Org/jebml
   - eg.: https://gitlab.com/axet/android-audio-library/-/blob/master/src/main/java/com/github/axet/audiolibrary/encoders/FormatMKA_AAC.java
 
-# Notes
+# Random Notes
 
-JSON metadata can be extracted with:
-```shell
-ffmpeg -i file.mp4 -map 0:d:0 -c copy -f rawvideo metadata.json
-```
+- JSON metadata can be extracted with:
+  ```shell
+  ffmpeg -i file.mp4 -map 0:d:0 -c copy -f rawvideo metadata.json
+  ```
 
-FT-891 meter CAT reading have been yielding weird / unreliable numbers - not used.
+- FT-891 meter CAT reading have been yielding weird / unreliable numbers - not used.
+
+- Icons are from https://www.flaticon.com/
 
 # Done
 
