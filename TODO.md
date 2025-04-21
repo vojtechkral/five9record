@@ -1,8 +1,8 @@
 # TODO
 
 - Recordings browser
-- Start recording dialog
-  - QTH options (-> dialog)
+- Start recording dialog persistence
+- QTH options (-> modal dialog)
 - FIXMEs
 - Unit test FT-891 CAT parsing
 - AOR AR8200 implementation
