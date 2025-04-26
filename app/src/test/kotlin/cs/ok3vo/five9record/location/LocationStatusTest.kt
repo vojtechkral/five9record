@@ -7,7 +7,7 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 
-class LocationStatusTest: StringSpec ({
+class LocationStatusTest: StringSpec({
     "maidenhead gridsquare" {
         forAll(
             row(50.0755, 14.4378, "JO70FB"),

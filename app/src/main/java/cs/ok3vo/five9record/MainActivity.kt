@@ -20,7 +20,6 @@ import androidx.compose.ui.res.stringResource
 import cs.ok3vo.five9record.databinding.ActivityMainBinding
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.recording.RecordingActivity
-import cs.ok3vo.five9record.recording.StartRecordingActivity
 
 class MainActivity : AppCompatActivity() {
     private val binding: ActivityMainBinding by lazy {

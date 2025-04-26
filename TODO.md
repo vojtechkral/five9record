@@ -1,8 +1,7 @@
 # TODO
 
+- Convert to Compose
 - Recordings browser
-- Start recording dialog persistence
-- QTH options (-> modal dialog)
 - FIXMEs
 - Unit test FT-891 CAT parsing
 - AOR AR8200 implementation
@@ -11,7 +10,6 @@
 - Display audio RMS in recording activity (val rms = sqrt(buffer.map { it * it }.average()))
 - Logcat collection
 - Theme / colours
-- Bump deps
 - DRY out catQuery/catCmd?
 - Config option for coarse GNSS / gridsquare only / no QTH (privacy)
   - In meta track too
@@ -49,3 +47,4 @@
 - Error handling UI - produce a notification on error while recording
 - Wake lock (fix silent recording)
 - Fix NumSatellites.usedInFix?
+- Start recording dialog persistence

@@ -1,7 +1,8 @@
-package cs.ok3vo.five9record.recording
+package cs.ok3vo.five9record
 
 import android.Manifest.permission
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build.VERSION.SDK_INT
@@ -28,33 +29,93 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.lifecycle.ViewModel
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.Serializer
+import androidx.datastore.dataStore
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import cs.ok3vo.five9record.R
 import cs.ok3vo.five9record.databinding.ActivityStartRecordingBinding
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.radio.RadioType
 import cs.ok3vo.five9record.radio.SerialDevice
 import cs.ok3vo.five9record.radio.CatSerialError
 import cs.ok3vo.five9record.radio.Usb
+import cs.ok3vo.five9record.recording.AudioDeviceInfoUi
+import cs.ok3vo.five9record.recording.AudioDevices
+import cs.ok3vo.five9record.recording.RecordingActivity
+import cs.ok3vo.five9record.recording.RecordingService
 import cs.ok3vo.five9record.ui.PickerItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import java.io.InputStream
+import java.io.OutputStream
 
-class StartRecordingState(
+@Serializable
+data class StartRecordingData(
+    val radioType: RadioType,
+    val baudRate: Int,
+    val audioDevice: Int,
+) {
+    constructor(): this(
+        radioType = RadioType.YAESU_FT_891,
+        baudRate = RadioType.YAESU_FT_891.companion.baudRates.first(),
+        audioDevice = -1,
+    )
+
+    companion object {
+        val serializer = object: Serializer<StartRecordingData> {
+            override val defaultValue = StartRecordingData()
+
+            override suspend fun readFrom(input: InputStream): StartRecordingData {
+                return try {
+                    val json = input.readBytes().decodeToString()
+                    Json.decodeFromString(serializer(), json)
+                } catch (e: Exception) {
+                    defaultValue
+                }
+            }
+
+            @Suppress("BlockingMethodInNonBlockingContext")
+            override suspend fun writeTo(t: StartRecordingData, output: OutputStream) {
+                val json = Json.encodeToString(serializer(), t)
+                output.write(json.encodeToByteArray())
+            }
+        }
+    }
+}
+
+private val Context.startRecordingDataStore: DataStore<StartRecordingData> by dataStore(
+    fileName = "startRecordingData.json",
+    serializer = StartRecordingData.serializer,
+)
+
+private class StartRecordingState(
+    persisted: StartRecordingData,
     serialDevices: List<SerialDevice>,
     audioDevices: List<AudioDeviceInfoUi>,
-): ViewModel() {
-    var radioType by mutableStateOf(RadioType.entries.first())
+) {
+    var radioType by mutableStateOf(persisted.radioType)
         private set
     var baudRates by mutableStateOf(radioType.companion.baudRates.toList())
-    var baudRate by mutableIntStateOf(baudRates.first())
+    var baudRate by mutableIntStateOf(persisted.baudRate)
     var serialDevice by mutableStateOf(serialDevices.firstOrNull())
-    var audioDevice by mutableStateOf(audioDevices.firstOrNull())
+    var audioDevice by mutableStateOf(
+        audioDevices.find { it.id == persisted.audioDevice }
+        ?: audioDevices.firstOrNull()
+    )
+
+    fun toPersistence() = StartRecordingData(
+        radioType = radioType,
+        baudRate = baudRate,
+        audioDevice = audioDevice?.id ?: -1,
+    )
 
     fun updateRadioType(updated: RadioType) {
         radioType = updated
@@ -72,7 +133,10 @@ class StartRecordingActivity: AppCompatActivity() {
 
     private val serialDevices by lazy { usb.serialDevices }
     private val audioDevices by lazy { audioDevs.recordingDevices }
-    private val state by lazy { StartRecordingState(serialDevices, audioDevices) }
+    private val state by lazy {
+        val persisted = runBlocking { startRecordingDataStore.data.first() }
+        StartRecordingState(persisted, serialDevices, audioDevices)
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -155,6 +219,10 @@ class StartRecordingActivity: AppCompatActivity() {
     private suspend fun startRecording() {
         if (!ensurePermissions()) {
             return
+        }
+
+        startRecordingDataStore.updateData {
+            state.toPersistence()
         }
 
         val radio = state.radioType

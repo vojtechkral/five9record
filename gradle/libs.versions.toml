@@ -1,7 +1,8 @@
 [versions]
 androidxJunit = "1.2.1"
 agp = "8.8.2"
-composeBom = "2025.04.00"
+composeBom = "2025.04.01"
+datastore = "1.1.5"
 kotest = "5.9.1"
 kotlin = "2.1.20"
 coreKtx = "1.16.0"
@@ -18,6 +19,7 @@ usbSerialForAndroid = "3.8.1"
 [libraries]
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxJunit" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }

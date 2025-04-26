@@ -32,6 +32,11 @@ fun<T> PickerItem(
     onItemSelected: (T) -> Unit = {},
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    val selectedItemChecked = if (items.contains(selectedItem)) {
+        selectedItem
+    } else {
+        items.firstOrNull()
+    }
 
     if (showDialog) {
         AlertDialog(
@@ -44,7 +49,7 @@ fun<T> PickerItem(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .selectable(
-                                    selected = (item == selectedItem),
+                                    selected = (item == selectedItemChecked),
                                     onClick = {
                                         onItemSelected(item)
                                         showDialog = false
@@ -55,7 +60,7 @@ fun<T> PickerItem(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             RadioButton(
-                                selected = item == selectedItem,
+                                selected = item == selectedItemChecked,
                                 onClick = null // handled by Row's onClick
                             )
                             Text(
@@ -74,7 +79,7 @@ fun<T> PickerItem(
 
     SettingsItem(
         title = title,
-        value = selectedItem?.let(itemLabel)
+        value = selectedItemChecked?.let(itemLabel)
             ?: items.firstOrNull()?.let(itemLabel)
             ?: emptyText,
         icon = icon,

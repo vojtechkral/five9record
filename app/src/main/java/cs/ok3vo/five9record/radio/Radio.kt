@@ -3,6 +3,7 @@ package cs.ok3vo.five9record.radio
 import cs.ok3vo.five9record.radio.rig.AorAr8200
 import cs.ok3vo.five9record.radio.rig.MockedRadio
 import cs.ok3vo.five9record.radio.rig.YaesuFt891
+import kotlinx.serialization.Serializable
 import java.io.Closeable
 
 interface RadioIo: Closeable {
@@ -17,6 +18,7 @@ interface RadioIo: Closeable {
     }
 }
 
+@Serializable
 enum class RadioType {
     YAESU_FT_891,
     AOR_AR8200,

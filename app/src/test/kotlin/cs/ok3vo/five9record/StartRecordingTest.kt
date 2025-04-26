@@ -1,0 +1,24 @@
+package cs.ok3vo.five9record
+
+import cs.ok3vo.five9record.radio.RadioType
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
+import kotlinx.serialization.json.Json
+
+class StartRecordingTest: StringSpec({
+    "StartRecordingData serde default" {
+        val data = StartRecordingData()
+        val json = Json.encodeToString(data)
+        json shouldBe """{"radioType":"YAESU_FT_891","baudRate":4800,"audioDevice":-1}"""
+    }
+
+    "StartRecordingData serde non-default" {
+        val data = StartRecordingData(
+            radioType = RadioType.AOR_AR8200,
+            baudRate = 9600,
+            audioDevice = 9001,
+        )
+        val json = Json.encodeToString(data)
+        json shouldBe """{"radioType":"AOR_AR8200","baudRate":9600,"audioDevice":9001}"""
+    }
+})
