@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -28,6 +29,7 @@ fun<T> PickerItem(
     selectedItem: T,
     emptyText: String,
     divider: Boolean = true,
+    additionalDialogRow: @Composable (() -> Unit)? = null,
     itemLabel: (T) -> String = { it.toString() },
     onItemSelected: (T) -> Unit = {},
 ) {
@@ -57,7 +59,7 @@ fun<T> PickerItem(
                                     role = Role.RadioButton,
                                 )
                                 .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             RadioButton(
                                 selected = item == selectedItemChecked,
@@ -69,6 +71,10 @@ fun<T> PickerItem(
                                 modifier = Modifier.padding(start = 8.dp)
                             )
                         }
+                    }
+
+                    if (additionalDialogRow != null) {
+                        additionalDialogRow()
                     }
                 }
             },

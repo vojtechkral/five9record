@@ -163,6 +163,7 @@ class RecordingService: Service() {
             filename = filename,
             audioDeviceId = audioDevice,
             radioDelay = 100, // FIXME: configurable
+            locationInMetatrack = startupData.locationInMetatrack,
         )
 
         wakeLock.acquire(powerManager, WAKE_LOCK_TAG)
@@ -212,6 +213,7 @@ class RecordingService: Service() {
     data class StartupData(
         val audioDevice: Int,
         val locationPrecision: LocationPrecision,
+        val locationInMetatrack: Boolean,
     ): Parcelable
 
     sealed class State {

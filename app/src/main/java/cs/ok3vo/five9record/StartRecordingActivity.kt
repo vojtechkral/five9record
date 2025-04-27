@@ -11,8 +11,12 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -21,15 +25,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
@@ -47,6 +56,7 @@ import cs.ok3vo.five9record.recording.AudioDevices
 import cs.ok3vo.five9record.recording.RecordingActivity
 import cs.ok3vo.five9record.recording.RecordingService
 import cs.ok3vo.five9record.ui.PickerItem
+import cs.ok3vo.five9record.util.Json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -55,24 +65,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import java.io.InputStream
 import java.io.OutputStream
 
 @Serializable
 data class StartRecordingData(
-    val radioType: RadioType,
-    val baudRate: Int,
-    val audioDevice: Int,
-    val locationPrecision: LocationPrecision,
+    val radioType: RadioType = RadioType.YAESU_FT_891,
+    val baudRate: Int = RadioType.YAESU_FT_891.companion.baudRates.first(),
+    val audioDevice: Int = -1,
+    val locationPrecision: LocationPrecision = LocationPrecision.FULL_LOCATION,
+    val locationInMetatrack: Boolean = true,
 ) {
-    constructor(): this(
-        radioType = RadioType.YAESU_FT_891,
-        baudRate = RadioType.YAESU_FT_891.companion.baudRates.first(),
-        audioDevice = -1,
-        locationPrecision = LocationPrecision.FULL_LOCATION,
-    )
-
     companion object {
         val serializer = object: Serializer<StartRecordingData> {
             override val defaultValue = StartRecordingData()
@@ -115,12 +118,14 @@ private class StartRecordingState(
         ?: audioDevices.firstOrNull()
     )
     var locationPrecision by mutableStateOf(persisted.locationPrecision)
+    var locationInMetatrack by mutableStateOf(persisted.locationInMetatrack)
 
     fun toPersistence() = StartRecordingData(
         radioType = radioType,
         baudRate = baudRate,
         audioDevice = audioDevice?.id ?: -1,
         locationPrecision = locationPrecision,
+        locationInMetatrack = locationInMetatrack,
     )
 
     fun updateRadioType(updated: RadioType) {
@@ -223,6 +228,11 @@ class StartRecordingActivity: AppCompatActivity() {
                             selectedItem = state.locationPrecision,
                             emptyText = "", // does not happen
                             divider = false,
+                            additionalDialogRow = {
+                                QthAdditionalRow(checked = state.locationInMetatrack) {
+                                    checked -> state.locationInMetatrack = checked
+                                }
+                            },
                             onItemSelected = { state.locationPrecision = it },
                         )
                     }
@@ -273,6 +283,7 @@ class StartRecordingActivity: AppCompatActivity() {
         val startupData = RecordingService.StartupData(
             audioDevice = audio.id,
             locationPrecision = locationPrecision,
+            locationInMetatrack = state.locationInMetatrack,
         )
         val svcIntent = Intent(this, RecordingService::class.java)
             .apply { putExtra(RecordingService.INTENT_STARTUP_DATA, startupData) }
@@ -388,5 +399,47 @@ class StartRecordingActivity: AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         permsRequestResults.trySend(grantResults)
+    }
+}
+
+@Composable
+private fun QthAdditionalRow(
+    checked: Boolean,
+    onCheckedChange: (checked: Boolean) -> Unit,
+) {
+    var checkedState by remember { mutableStateOf(checked) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(
+                selected = checked,
+                onClick = {
+                    checkedState = !checkedState
+                    onCheckedChange(checkedState)
+                },
+                role = Role.Checkbox,
+            )
+            .padding(top = 16.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Checkbox(
+            checked = checkedState,
+            modifier = Modifier.padding(0.dp),
+            onCheckedChange = null,
+        )
+        Text(
+            text = stringResource(R.string.qth_in_metatrack),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 8.dp),
+        )
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, bottom = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(stringResource(R.string.qth_settings_note))
     }
 }

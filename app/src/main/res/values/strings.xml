@@ -34,4 +34,6 @@
     <string name="baud_rate">Baud rate:</string>
     <string name="start_recording">Start Recording</string>
     <string name="qth_precision">QTH Precision:</string>
+    <string name="qth_in_metatrack">Include location in metadata track</string>
+    <string name="qth_settings_note">Note: In system settings, location can be disabled entirely or its precision can be reduced for this app.</string>
 </resources>

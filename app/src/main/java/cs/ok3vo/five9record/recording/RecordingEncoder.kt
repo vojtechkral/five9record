@@ -35,6 +35,7 @@ class RecordingEncoder(
     private val filename: String,
     private val audioDeviceId: Int,
     private val radioDelay: Int,
+    private val locationInMetatrack: Boolean,
 ) {
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private lateinit var surface: Surface
@@ -164,7 +165,7 @@ class RecordingEncoder(
                     surface.unlockCanvasAndPost(canvas)
                 }
 
-                writeMetadata(statusData, pts)
+                writeMetadata(statusData, pts, locationInMetatrack)
 
                 sleep(radioDelay.toLong())
             }
@@ -251,13 +252,19 @@ class RecordingEncoder(
             }
         }
 
-        private fun writeMetadata(statusData: StatusData, pts: Long) {
+        private fun writeMetadata(statusData: StatusData, pts: Long, includeLocation: Boolean) {
             if (!stateSync.muxerStarted.get()) {
                 // Don't attempt to write metadata until the muxer is started
                 return
             }
 
-            val json = Json.encodeToString(statusData)
+            val data = statusData.copy(location = statusData.location.copy())
+            if (!includeLocation) {
+                data.location.gnssEnabled = false
+                data.location.position = null
+            }
+
+            val json = Json.encodeToString(data)
             metaBuffer.clear()
             metaBuffer.put(json.toByteArray(Charsets.UTF_8))
             metaBuffer.put('\n'.code.toByte())

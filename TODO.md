@@ -29,6 +29,8 @@
 
 - Icons are from https://www.flaticon.com/
 
+- onClick = null reduces the size of Radio/Checkboxes
+
 # Done
 
 - Encode metadata: https://developer.android.com/reference/android/media/MediaMuxer?hl=en#metadata-track
