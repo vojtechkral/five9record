@@ -4,3 +4,8 @@ import android.content.Context
 
 fun Context.recordingsDirectory()
     = getExternalFilesDir(null)!!
+
+fun Context.listRecordings()
+    = recordingsDirectory().listFiles { f -> f.extension == "mp4" }
+    ?.sortedByDescending { it.lastModified() }
+    ?: emptyList()

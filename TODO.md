@@ -2,6 +2,7 @@
 
 - Recordings location hint
 - Convert to Compose
+- Prune deps
 - FIXMEs
 - Unit test FT-891 CAT parsing
 - AOR AR8200 implementation

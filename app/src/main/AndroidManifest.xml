@@ -30,7 +30,6 @@
             android:theme="@style/Theme.Five9Record">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
@@ -57,5 +56,4 @@
             android:exported="false"
             android:foregroundServiceType="microphone" />
     </application>
-
 </manifest>
