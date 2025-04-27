@@ -64,7 +64,7 @@ fun SettingsItem(
                 modifier = rowModifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Top,
             ) {
                 Icon(
                     imageVector = icon,
@@ -74,7 +74,9 @@ fun SettingsItem(
                         .padding(end = 16.dp),
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
-                Column {
+                Column(
+                    modifier = Modifier.padding(top = 5.dp)
+                ) {
                     Text(
                         text = title,
                         style = MaterialTheme.typography.labelLarge,

@@ -15,8 +15,11 @@ class LocationStatusTest: StringSpec({
             row(-41.2924, 174.779, "RE78JQ"),
         ) {
             lat, lon, expectedLocator ->
-            val locator = LocationStatus.Position(lat, lon, null).toMaidenhead()
+            val locator = LocationStatus.Position(lat, lon, null).toMaidenhead(true)
             locator shouldBe expectedLocator
+
+            val noSubsquare = LocationStatus.Position(lat, lon, null).toMaidenhead(false)
+            noSubsquare shouldBe expectedLocator.substring(0..3)
         }
     }
 

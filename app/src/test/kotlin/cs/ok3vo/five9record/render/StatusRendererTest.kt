@@ -1,5 +1,6 @@
 package cs.ok3vo.five9record.render
 
+import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.location.LocationStatus
 import cs.ok3vo.five9record.radio.rig.MockedRadio
 import cs.ok3vo.five9record.radio.Mode
@@ -92,8 +93,26 @@ class StatusRendererTest: StringSpec ({
         ) {
             location, expectedQth, expectedDetail ->
 
-            location.formatQth() shouldBe expectedQth
-            location.formatGnssDetail() shouldBe expectedDetail
+            val precision = LocationPrecision.FULL_LOCATION
+            location.formatQth(precision) shouldBe expectedQth
+            location.formatGnssDetail(precision) shouldBe expectedDetail
+        }
+    }
+
+    "formatQth and formatGnssDetail precision config" {
+        val location = LocationStatus(
+            gnssEnabled = true,
+            position = position(0.123456789, 50.123456789),
+            numSatellites = LocationStatus.NumSatellites(15, 30),
+        )
+        forAll(
+            row(LocationPrecision.FULL_LOCATION, "LJ50BC", "15/30 0.12346N 50.12346E"),
+            row(LocationPrecision.LOCATOR_SUBSQUARE, "LJ50BC", "15/30"),
+            row(LocationPrecision.LOCATOR_SQUARE, "LJ50", "15/30"),
+        ) {
+            precision, expectedQth, expectedDetail ->
+            location.formatQth(precision) shouldBe expectedQth
+            location.formatGnssDetail(precision) shouldBe expectedDetail
         }
     }
 })

@@ -11,6 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import cs.ok3vo.five9record.databinding.ActivityRecordingBinding
+import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.render.StatusRenderer
 import cs.ok3vo.five9record.util.elapsed
@@ -18,7 +19,6 @@ import cs.ok3vo.five9record.util.logE
 import cs.ok3vo.five9record.util.logI
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.Duration
 import java.time.Instant
 
 // TODO: Display meta info about recording - filename, size etc.
@@ -27,9 +27,10 @@ import java.time.Instant
 class RecordingActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRecordingBinding
     private lateinit var startTime: Instant
-    private val renderer by lazy { StatusRenderer(this) }
+    private val renderer by lazy { StatusRenderer(this, locationPrecision) } // FIXME
     private val previewBitmap = createPreviewBitmap()
     private var errorDialog: AlertDialog? = null
+    private var locationPrecision = LocationPrecision.FULL_LOCATION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +44,10 @@ class RecordingActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.btnStop.setOnClickListener { stopRequest() }
+
+        @Suppress("DEPRECATION") // new method only from Tiramisu and up
+        intent.getParcelableExtra<LocationPrecision>(INTENT_STARTUP_DATA)
+            ?.let { locationPrecision = it }
 
         lifecycleScope.launch {
             try {
@@ -133,6 +138,8 @@ class RecordingActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val INTENT_STARTUP_DATA = "startup_data"
+
         fun createPreviewBitmap() = Bitmap.createBitmap(
             StatusRenderer.WIDTH,
             StatusRenderer.HEIGHT,

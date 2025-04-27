@@ -8,6 +8,7 @@ import android.content.pm.PackageManager
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,6 +36,7 @@ import androidx.datastore.dataStore
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import cs.ok3vo.five9record.databinding.ActivityStartRecordingBinding
+import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.radio.RadioType
 import cs.ok3vo.five9record.radio.SerialDevice
@@ -62,11 +64,13 @@ data class StartRecordingData(
     val radioType: RadioType,
     val baudRate: Int,
     val audioDevice: Int,
+    val locationPrecision: LocationPrecision,
 ) {
     constructor(): this(
         radioType = RadioType.YAESU_FT_891,
         baudRate = RadioType.YAESU_FT_891.companion.baudRates.first(),
         audioDevice = -1,
+        locationPrecision = LocationPrecision.FULL_LOCATION,
     )
 
     companion object {
@@ -110,11 +114,13 @@ private class StartRecordingState(
         audioDevices.find { it.id == persisted.audioDevice }
         ?: audioDevices.firstOrNull()
     )
+    var locationPrecision by mutableStateOf(persisted.locationPrecision)
 
     fun toPersistence() = StartRecordingData(
         radioType = radioType,
         baudRate = baudRate,
         audioDevice = audioDevice?.id ?: -1,
+        locationPrecision = locationPrecision,
     )
 
     fun updateRadioType(updated: RadioType) {
@@ -207,8 +213,17 @@ class StartRecordingActivity: AppCompatActivity() {
                             items = audioDevices,
                             selectedItem = state.audioDevice,
                             emptyText = stringResource(R.string.no_audio_devs_found),
-                            divider = false,
+                            divider = true,
                             onItemSelected = { state.audioDevice = it },
+                        )
+                        PickerItem(
+                            icon = ImageVector.vectorResource(R.drawable.location_precision),
+                            title = stringResource(R.string.qth_precision),
+                            items = LocationPrecision.entries,
+                            selectedItem = state.locationPrecision,
+                            emptyText = "", // does not happen
+                            divider = false,
+                            onItemSelected = { state.locationPrecision = it },
                         )
                     }
                 }
@@ -253,12 +268,16 @@ class StartRecordingActivity: AppCompatActivity() {
             return
         }
 
+        val locationPrecision = state.locationPrecision
+
         val startupData = RecordingService.StartupData(
             audioDevice = audio.id,
+            locationPrecision = locationPrecision,
         )
         val svcIntent = Intent(this, RecordingService::class.java)
             .apply { putExtra(RecordingService.INTENT_STARTUP_DATA, startupData) }
         val activityIntent = Intent(this, RecordingActivity::class.java)
+            .apply { putExtra(RecordingActivity.INTENT_STARTUP_DATA, locationPrecision as Parcelable) }
 
         val dgConnecting = MaterialAlertDialogBuilder(this)
             .setTitle("Connecting...")

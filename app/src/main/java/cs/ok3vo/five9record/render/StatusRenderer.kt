@@ -9,15 +9,20 @@ import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.core.content.ContextCompat
 import cs.ok3vo.five9record.R
+import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.location.LocationStatus
 import cs.ok3vo.five9record.radio.Mode
 import cs.ok3vo.five9record.radio.RadioData
 import cs.ok3vo.five9record.recording.StatusData
+import cs.ok3vo.five9record.util.logW
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-class StatusRenderer(private val context: Context) {
+class StatusRenderer(
+    private val context: Context,
+    private val locationPrecision: LocationPrecision,
+) {
     private val utcFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
     private val inflater = LayoutInflater.from(context)
@@ -42,8 +47,8 @@ class StatusRenderer(private val context: Context) {
             txLed.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.status_rx))
         }
 
-        setText(R.id.qth) { sd.location.formatQth() }
-        setText(R.id.gnssDetail) { sd.location.formatGnssDetail() }
+        setText(R.id.qth) { sd.location.formatQth(locationPrecision) }
+        setText(R.id.gnssDetail) { sd.location.formatGnssDetail(locationPrecision) }
 
         view.measure(
             View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
@@ -115,15 +120,15 @@ fun LocationStatus.Position.formatLon(): String {
     return "%.5f%C".format(Locale.ROOT, lon, d)
 }
 
-fun LocationStatus.formatQth(): String {
+fun LocationStatus.formatQth(precision: LocationPrecision): String {
     if (!gnssEnabled) {
         return "N/A"
     }
 
-    return position?.toMaidenhead() ?: "Acquiring…"
+    return position?.toMaidenhead(precision.subsquareEnabled) ?: "Acquiring…"
 }
 
-fun LocationStatus.formatGnssDetail(): String {
+fun LocationStatus.formatGnssDetail(precision: LocationPrecision): String {
     if (!gnssEnabled) {
         return "GNSS location disabled"
     }
@@ -136,9 +141,13 @@ fun LocationStatus.formatGnssDetail(): String {
         return "$satsFix/$satsTotal"
     }
 
-    val lat = pos.formatLat()
-    val lon = pos.formatLon()
-    val accuracy = pos.accuracyRadius?.let { " ±%.1fm".format(Locale.ROOT, it) } ?: ""
+    return if (precision == LocationPrecision.FULL_LOCATION) {
+        val lat = pos.formatLat()
+        val lon = pos.formatLon()
+        val accuracy = pos.accuracyRadius?.let { " ±%.1fm".format(Locale.ROOT, it) } ?: ""
 
-    return "$satsFix/$satsTotal $lat $lon$accuracy"
+        "$satsFix/$satsTotal $lat $lon$accuracy"
+    } else {
+        "$satsFix/$satsTotal"
+    }
 }

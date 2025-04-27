@@ -23,7 +23,7 @@ data class LocationStatus(
         val longitude: Double,
         val accuracyRadius: Float?
     ) {
-        fun toMaidenhead(): String {
+        fun toMaidenhead(subsquare: Boolean): String {
             // Shift longitude to 0–360 scale, latitude to 0-180
             var lat = latitude + 90.0
             var lon = longitude + 180.0
@@ -50,8 +50,10 @@ data class LocationStatus(
                 append('A' + fieldLat)
                 append(squareLon)
                 append(squareLat)
-                append('A' + subLon)
-                append('A' + subLat)
+                if (subsquare) {
+                    append('A' + subLon)
+                    append('A' + subLat)
+                }
             }
         }
 

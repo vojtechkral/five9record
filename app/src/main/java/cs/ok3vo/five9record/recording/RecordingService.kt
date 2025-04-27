@@ -12,6 +12,7 @@ import android.os.Parcelable
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import cs.ok3vo.five9record.location.LocationListener
+import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.render.StatusRenderer
 import cs.ok3vo.five9record.ui.NotificationBuilder
@@ -29,7 +30,6 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicReference
 
 class RecordingService: Service() {
-    private val renderer by lazy { StatusRenderer(this) }
     private val locationManager by lazy { getSystemService(LOCATION_SERVICE) as LocationManager }
     private val powerManager by lazy { getSystemService(POWER_SERVICE) as PowerManager }
     private var wakeLock = AtomicReference<PowerManager.WakeLock?>(null)
@@ -63,6 +63,7 @@ class RecordingService: Service() {
         } else {
             startForeground(1, serviceNotification())
         }
+
         startLocationUpdates()
 
         @Suppress("DEPRECATION") // new method only from Tiramisu and up
@@ -155,6 +156,7 @@ class RecordingService: Service() {
     private fun runRecording(startupData: StartupData) {
         val filename = recordingFilename()
         val audioDevice = startupData.audioDevice
+        val renderer = StatusRenderer(this, startupData.locationPrecision)
         val encoder = RecordingEncoder(
             context = this,
             renderer = renderer,
@@ -209,6 +211,7 @@ class RecordingService: Service() {
     @Parcelize
     data class StartupData(
         val audioDevice: Int,
+        val locationPrecision: LocationPrecision,
     ): Parcelable
 
     sealed class State {
