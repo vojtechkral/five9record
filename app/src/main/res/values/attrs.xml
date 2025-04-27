@@ -1,6 +1,0 @@
-<resources>
-    <declare-styleable name="PickerButton">
-        <attr name="emptyText" format="string" />
-        <attr name="dialogTitle" format="string" />
-    </declare-styleable>
-</resources>
