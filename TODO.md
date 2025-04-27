@@ -1,7 +1,7 @@
 # TODO
 
+- Recordings location hint
 - Convert to Compose
-- Recordings browser
 - FIXMEs
 - Unit test FT-891 CAT parsing
 - AOR AR8200 implementation
@@ -11,9 +11,6 @@
 - Logcat collection
 - Theme / colours
 - DRY out catQuery/catCmd?
-- Config option for coarse GNSS / gridsquare only / no QTH (privacy)
-  - In meta track too
-  - Android has the "approximate location" feature, cf. the permission dialog
 - AAC stream not finalized properly
 - Mux to MKV? https://github.com/Matroska-Org/jebml
   - eg.: https://gitlab.com/axet/android-audio-library/-/blob/master/src/main/java/com/github/axet/audiolibrary/encoders/FormatMKA_AAC.java
@@ -50,3 +47,7 @@
 - Wake lock (fix silent recording)
 - Fix NumSatellites.usedInFix?
 - Start recording dialog persistence
+- Config option for coarse GNSS / gridsquare only / no QTH (privacy)
+  - In meta track too
+  - Android has the "approximate location" feature, cf. the permission dialog
+- Recordings browser

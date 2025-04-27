@@ -65,10 +65,13 @@ dependencies {
     implementation(composeBom)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.datastore)
 
     // Other
     implementation(libs.usb.serial)
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
 

@@ -102,8 +102,8 @@ class RecordingEncoder(
         metaformat.setString(MediaFormat.KEY_MIME, META_MIME_TYPE)
 
         // Set up the muxer
-        val externalDir = context.getExternalFilesDir(null)
-        val outFile = File(externalDir, filename)
+        val recordingsDir = context.recordingsDirectory()
+        val outFile = File(recordingsDir, filename)
 
         // We can't add the tracks and start the muxer here, because the MediaFormats aren't
         // fully initialized until the codec starts processing data (at least for video).
