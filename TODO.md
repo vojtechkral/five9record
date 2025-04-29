@@ -11,6 +11,7 @@
 - Display audio RMS in recording activity (val rms = sqrt(buffer.map { it * it }.average()))
 - Logcat collection
 - Theme / colours
+- String resources for baud rate hints (?)
 - DRY out catQuery/catCmd?
 - AAC stream not finalized properly
 - Mux to MKV? https://github.com/Matroska-Org/jebml

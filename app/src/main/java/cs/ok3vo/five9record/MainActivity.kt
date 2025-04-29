@@ -1,6 +1,5 @@
 package cs.ok3vo.five9record
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,11 +32,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import cs.ok3vo.five9record.radio.Radio
-import cs.ok3vo.five9record.recording.RecordingActivity
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import cs.ok3vo.five9record.recording.listRecordings
+import cs.ok3vo.five9record.ui.Navigation
 import cs.ok3vo.five9record.ui.RecordingsBrowser
 import cs.ok3vo.five9record.ui.RecordingsBrowserSelectionBar
+import cs.ok3vo.five9record.ui.StartRecordingScreen
 import java.io.File
 
 class MainActivity: ComponentActivity() {
@@ -49,14 +51,26 @@ class MainActivity: ComponentActivity() {
 
 @Composable
 fun App() {
-    MaterialTheme { // TODO: use app's theme
-        MainScreen()
+//    MainScreen()
+
+    val navController = rememberNavController()
+    NavHost(navController, startDestination = Navigation.Main) {
+        composable<Navigation.Main> {
+            MainScreen(onNavigateStartRecording = {
+                navController.navigate(route = Navigation.StartRecording)
+            })
+        }
+        composable<Navigation.StartRecording> {
+            StartRecordingScreen(navController)
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    onNavigateStartRecording: () -> Unit,
+) = MaterialTheme {
     val context = LocalContext.current
     var recordings by remember { mutableStateOf(context.listRecordings()) }
     var selectedFiles by remember { mutableStateOf(setOf<File>()) }
@@ -92,12 +106,13 @@ fun MainScreen() {
                 text = { Text(stringResource(R.string.new_recording)) },
                 onClick = {
                     // TODO: Navigation
-                    val intent = if (Radio.isRunning) {
-                        Intent(context, RecordingActivity::class.java)
-                    } else {
-                        Intent(context, StartRecordingActivity::class.java)
-                    }
-                    context.startActivity(intent)
+//                    val intent = if (Radio.isRunning) {
+//                        Intent(context, RecordingActivity::class.java)
+//                    } else {
+//                        Intent(context, StartRecordingActivity::class.java)
+//                    }
+//                    context.startActivity(intent)
+                    onNavigateStartRecording()
                 }
             )
         }

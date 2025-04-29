@@ -13,7 +13,7 @@ class MockedRadio: RadioIo {
 
     companion object: RadioIo.Companion {
         override val name = "Emulated radio"
-        override val baudRates = arrayOf(4800)
+        override val baudRates = arrayOf(9001)
         override val baudRateHint = null
 
         // Mocked radio cannot be started with a real serial port.
@@ -25,6 +25,6 @@ class MockedRadio: RadioIo {
             mode = Mode.USB,
             tx = Random.nextBoolean(),
             power = 40,
-        )
+        ) // FIXME: exception from here not handled?
     }
 }

@@ -37,4 +37,22 @@
     <string name="qth_in_metatrack">Include location in metadata track</string>
     <string name="qth_settings_note">Note: In system settings, location can be disabled entirely or its precision can be reduced for this app.</string>
     <string name="no_recordings">No recordings yet…</string>
+    <string name="connecting_to_radio">Connecting…</string>
+    <string name="connecting_to_radio_detail">Connecting to %1$s</string>
+    <string name="error">Error</string>
+    <string name="connect_radio_error">Could not connect to radio:\n\n%1$s.%2$s</string>
+    <string name="cannot_start_recording">Cannot start recording</string>
+    <string name="cannot_start_recording_no_serial">
+        Cannot start recording without a connected USB serial port.
+
+        Without a serial port only Emulated radio can be used.
+    </string>
+    <string name="back">Back</string>
+    <string name="cannot_start_recording_no_audio">Cannot start recording without an audio input device.</string>
+    <string name="permission_error">Permission Error</string>
+    <string name="permissions_not_granted">The following permissions were not granted:</string>
+    <string name="recording_start_error_permissions">
+        Recording cannot be started.
+        Hint: App permissions can be configured in the system settings.
+    </string>
 </resources>
