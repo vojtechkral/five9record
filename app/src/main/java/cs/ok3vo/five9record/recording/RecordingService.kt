@@ -16,8 +16,8 @@ import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.radio.Radio
 import cs.ok3vo.five9record.render.StatusRenderer
 import cs.ok3vo.five9record.ui.NotificationBuilder
-import cs.ok3vo.five9record.ui.acquire
-import cs.ok3vo.five9record.ui.release
+import cs.ok3vo.five9record.util.acquire
+import cs.ok3vo.five9record.util.release
 import cs.ok3vo.five9record.util.Utc
 import cs.ok3vo.five9record.util.logE
 import cs.ok3vo.five9record.util.logI

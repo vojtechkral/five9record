@@ -1,4 +1,4 @@
-package cs.ok3vo.five9record.ui
+package cs.ok3vo.five9record.util
 
 import android.annotation.SuppressLint
 import android.os.PowerManager
