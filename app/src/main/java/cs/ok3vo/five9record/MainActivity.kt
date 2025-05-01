@@ -39,7 +39,7 @@ import cs.ok3vo.five9record.recording.listRecordings
 import cs.ok3vo.five9record.ui.Navigation
 import cs.ok3vo.five9record.ui.RecordingsBrowser
 import cs.ok3vo.five9record.ui.RecordingsBrowserSelectionBar
-import cs.ok3vo.five9record.ui.StartRecordingScreen
+import cs.ok3vo.five9record.ui.start_recording.StartRecordingScreen
 import java.io.File
 
 class MainActivity: ComponentActivity() {

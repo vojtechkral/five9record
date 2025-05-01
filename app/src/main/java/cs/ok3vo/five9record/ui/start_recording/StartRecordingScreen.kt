@@ -1,4 +1,4 @@
-package cs.ok3vo.five9record.ui
+package cs.ok3vo.five9record.ui.start_recording
 
 import android.content.Context
 import android.content.Intent
@@ -53,6 +53,8 @@ import cs.ok3vo.five9record.recording.AudioDeviceInfoUi
 import cs.ok3vo.five9record.recording.RecordingActivity
 import cs.ok3vo.five9record.recording.RecordingService
 import cs.ok3vo.five9record.recording.getAudioRecordingDevices
+import cs.ok3vo.five9record.ui.EnsurePermissions
+import cs.ok3vo.five9record.ui.PickerItem
 import cs.ok3vo.five9record.util.Json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -129,7 +131,7 @@ private class Settings(
     }
 }
 
-enum class State {
+private enum class State {
     GROUND,
     RECORDING_REQUESTED,
     RECORDING_STARTING,
@@ -141,7 +143,10 @@ enum class State {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StartRecordingScreen(navController: NavHostController) = MaterialTheme {
+fun StartRecordingScreen(
+    navController: NavHostController, // FIXME: rm
+    onNavigateRecording: (LocationPrecision) -> Unit,
+) = MaterialTheme {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -151,11 +156,13 @@ fun StartRecordingScreen(navController: NavHostController) = MaterialTheme {
 
     var state by remember { mutableStateOf(State.GROUND) }
 
-    var settings by remember { mutableStateOf(Settings(
+    var settings by remember { mutableStateOf(
+        Settings(
         persisted = SettingsSerde(),
         serialDevices = serialDevices,
         audioDevices = audioDevices,
-    )) }
+    )
+    ) }
 
     LifecycleStartEffect(Unit) {
         if (Radio.isRunning) {
