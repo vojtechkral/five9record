@@ -8,4 +8,7 @@ class Navigation {
 
     @Serializable
     object StartRecording
+
+    @Serializable
+    object Recording
 }

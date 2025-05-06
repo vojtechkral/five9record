@@ -27,9 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation.compose.NavHost
@@ -37,6 +38,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import cs.ok3vo.five9record.recording.listRecordings
 import cs.ok3vo.five9record.ui.Navigation
+import cs.ok3vo.five9record.ui.recording.RecordingScreen
 import cs.ok3vo.five9record.ui.RecordingsBrowser
 import cs.ok3vo.five9record.ui.RecordingsBrowserSelectionBar
 import cs.ok3vo.five9record.ui.start_recording.StartRecordingScreen
@@ -51,17 +53,26 @@ class MainActivity: ComponentActivity() {
 
 @Composable
 fun App() {
-//    MainScreen()
-
     val navController = rememberNavController()
     NavHost(navController, startDestination = Navigation.Main) {
         composable<Navigation.Main> {
             MainScreen(onNavigateStartRecording = {
-                navController.navigate(route = Navigation.StartRecording)
+                navController.navigate(Navigation.StartRecording)
             })
         }
         composable<Navigation.StartRecording> {
-            StartRecordingScreen(navController)
+            StartRecordingScreen(
+                onNavigateRecording = {
+                    navController.popBackStack() // Replace the start screen with the recording one
+                    navController.navigate(Navigation.Recording)
+                },
+            )
+        }
+        composable<Navigation.Recording> {
+            RecordingScreen(onStopped = {
+                navController.popBackStack()
+                navController.navigate(Navigation.Main)
+            })
         }
     }
 }
@@ -102,18 +113,10 @@ fun MainScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                icon = { Icon(painterResource(R.drawable.voicemail), "Record") },
+                icon = { Icon(ImageVector.vectorResource(R.drawable.voicemail), "Record") },
                 text = { Text(stringResource(R.string.new_recording)) },
-                onClick = {
-                    // TODO: Navigation
-//                    val intent = if (Radio.isRunning) {
-//                        Intent(context, RecordingActivity::class.java)
-//                    } else {
-//                        Intent(context, StartRecordingActivity::class.java)
-//                    }
-//                    context.startActivity(intent)
-                    onNavigateStartRecording()
-                }
+                onClick = { onNavigateStartRecording() },
+                containerColor = MaterialTheme.colorScheme.primary,
             )
         }
     ) {

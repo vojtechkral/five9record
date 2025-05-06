@@ -12,7 +12,7 @@ import android.media.MediaFormat
 import android.media.MediaMuxer
 import android.os.Process
 import android.view.Surface
-import cs.ok3vo.five9record.render.StatusRenderer
+import cs.ok3vo.five9record.ui.video.VideoView
 import cs.ok3vo.five9record.util.Mutex
 import cs.ok3vo.five9record.util.logD
 import cs.ok3vo.five9record.util.logE
@@ -30,9 +30,9 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.min
 
 class RecordingEncoder(
-    private val context: Context,
-    private val renderer: StatusRenderer,
-    private val filename: String,
+    context: Context,
+    private val videoView: VideoView,
+    private val outputFile: File,
     private val audioDeviceId: Int,
     private val radioDelay: Int,
     private val locationInMetatrack: Boolean,
@@ -102,13 +102,10 @@ class RecordingEncoder(
         metaformat.setString(MediaFormat.KEY_MIME, META_MIME_TYPE)
 
         // Set up the muxer
-        val recordingsDir = context.recordingsDirectory()
-        val outFile = File(recordingsDir, filename)
-
         // We can't add the tracks and start the muxer here, because the MediaFormats aren't
         // fully initialized until the codec starts processing data (at least for video).
         // This is pretty annoying and the StateSync utility is written to address that.
-        muxer = Mutex(MediaMuxer(outFile.absolutePath, MUX_FORMAT))
+        muxer = Mutex(MediaMuxer(outputFile.absolutePath, MUX_FORMAT))
 
         val vthread = VideoThread(statusDataFn, metaformat).also { it.start() }
         val athread = AudioThread(audioRecord, aformat).also { it.start() }
@@ -160,7 +157,8 @@ class RecordingEncoder(
 
                 val canvas = surface.lockCanvas(null)
                 try {
-                    renderer.render(statusData, canvas)
+                    videoView.updateData(statusData)
+                    videoView.renderToCanvas(canvas)
                 } finally {
                     surface.unlockCanvasAndPost(canvas)
                 }
@@ -411,8 +409,8 @@ class RecordingEncoder(
     }
 
     companion object {
-        private const val VIDEO_W = 640
-        private const val VIDEO_H = 480
+        const val VIDEO_W = 640
+        const val VIDEO_H = 480
         private const val VIDEO_FPS = 10
         private const val VIDEO_RATE = 2_000_000 // FIXME: configurable?
         private const val VIDEO_I_INTERVAL = 1

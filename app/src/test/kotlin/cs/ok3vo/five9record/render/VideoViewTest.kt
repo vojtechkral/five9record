@@ -4,6 +4,13 @@ import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.location.LocationStatus
 import cs.ok3vo.five9record.radio.rig.MockedRadio
 import cs.ok3vo.five9record.radio.Mode
+import cs.ok3vo.five9record.ui.video.formatFreq
+import cs.ok3vo.five9record.ui.video.formatGnssDetail
+import cs.ok3vo.five9record.ui.video.formatLat
+import cs.ok3vo.five9record.ui.video.formatLon
+import cs.ok3vo.five9record.ui.video.formatMode
+import cs.ok3vo.five9record.ui.video.formatPower
+import cs.ok3vo.five9record.ui.video.formatQth
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
@@ -12,7 +19,7 @@ import io.kotest.matchers.shouldBe
 private fun position(lon: Double, lat: Double, accuracyRadius: Float? = null)
     = LocationStatus.Position(lon, lat, accuracyRadius)
 
-class StatusRendererTest: StringSpec ({
+class VideoViewTest: StringSpec ({
     "formatFreq" {
         forAll(
             row(12_345_678L, "12.345.678 Hz"),

@@ -1,12 +1,10 @@
 # TODO
 
-- Recordings location hint
-- Convert to Compose
+- Bug: Main screen back btn
 - Prune deps
 - FIXMEs
 - Unit test FT-891 CAT parsing
 - AOR AR8200 implementation
-- Extract strings to resources
 - Configurable codec bitrates?
 - Display audio RMS in recording activity (val rms = sqrt(buffer.map { it * it }.average()))
 - Logcat collection
@@ -53,3 +51,6 @@
   - In meta track too
   - Android has the "approximate location" feature, cf. the permission dialog
 - Recordings browser
+- Recordings location hint
+- Convert to Compose
+- Extract strings to resources

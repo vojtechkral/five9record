@@ -1,34 +1,44 @@
-package cs.ok3vo.five9record.render
+package cs.ok3vo.five9record.ui.video
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.IdRes
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import cs.ok3vo.five9record.R
 import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.location.LocationStatus
 import cs.ok3vo.five9record.radio.Mode
 import cs.ok3vo.five9record.radio.RadioData
+import cs.ok3vo.five9record.recording.RecordingEncoder
 import cs.ok3vo.five9record.recording.StatusData
-import cs.ok3vo.five9record.util.logW
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-class StatusRenderer(
-    private val context: Context,
+/**
+ * A View that renders the video screen content.
+ *
+ * A classic View is used for the video frame rendering rather than a Composable,
+ * because Composables are quite tricky to render into a Canvas,
+ * particularly without a parent window available.
+ */
+@SuppressLint("ViewConstructor")
+class VideoView(
+    context: Context,
     private val locationPrecision: LocationPrecision,
-) {
+): ConstraintLayout(context) {
+    init {
+        LayoutInflater.from(context).inflate(R.layout.video_view, this, true);
+    }
+
     private val utcFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-    private val inflater = LayoutInflater.from(context)
-    private val view = inflater.inflate(R.layout.status_template, null)
-
-    fun render(statusData: StatusData, canvas: Canvas) {
+    fun updateData(statusData: StatusData) {
         val sd = statusData
         setText(R.id.rig) { sd.radio.rig }
         setText(R.id.freq) { sd.radio.formatFreq() }
@@ -37,8 +47,8 @@ class StatusRenderer(
 
         setText(R.id.utc) { sd.timestamp.atOffset(ZoneOffset.UTC).format(utcFormatter) }
 
-        val tx = view.findViewById<TextView>(R.id.tx)
-        val txLed = view.findViewById<ImageView>(R.id.txLed)
+        val tx = findViewById<TextView>(R.id.tx)
+        val txLed = findViewById<ImageView>(R.id.txLed)
         if (sd.radio.tx) {
             tx.text = "TX"
             txLed.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.status_tx))
@@ -50,21 +60,19 @@ class StatusRenderer(
         setText(R.id.qth) { sd.location.formatQth(locationPrecision) }
         setText(R.id.gnssDetail) { sd.location.formatGnssDetail(locationPrecision) }
 
-        view.measure(
-            View.MeasureSpec.makeMeasureSpec(WIDTH, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(HEIGHT, View.MeasureSpec.EXACTLY)
-        )
-        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
-        view.draw(canvas)
     }
 
     private fun setText(@IdRes id: Int, text: () -> String) {
-        view.findViewById<TextView>(id).text = text()
+        findViewById<TextView>(id).text = text()
     }
 
-    companion object {
-        const val WIDTH = 640
-        const val HEIGHT = 480
+    fun renderToCanvas(canvas: Canvas) {
+        measure(
+            MeasureSpec.makeMeasureSpec(RecordingEncoder.VIDEO_W, MeasureSpec.EXACTLY),
+            MeasureSpec.makeMeasureSpec(RecordingEncoder.VIDEO_H, MeasureSpec.EXACTLY)
+        )
+        layout(0, 0, measuredWidth, measuredHeight)
+        draw(canvas)
     }
 }
 

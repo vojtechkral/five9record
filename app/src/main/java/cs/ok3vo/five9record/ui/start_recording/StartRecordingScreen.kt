@@ -2,7 +2,7 @@ package cs.ok3vo.five9record.ui.start_recording
 
 import android.content.Context
 import android.content.Intent
-import android.os.Parcelable
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.Role
@@ -40,7 +39,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.Serializer
 import androidx.datastore.dataStore
 import androidx.lifecycle.compose.LifecycleStartEffect
-import androidx.navigation.NavHostController
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import cs.ok3vo.five9record.R
 import cs.ok3vo.five9record.location.LocationPrecision
@@ -50,9 +48,9 @@ import cs.ok3vo.five9record.radio.RadioType
 import cs.ok3vo.five9record.radio.SerialDevice
 import cs.ok3vo.five9record.radio.Usb
 import cs.ok3vo.five9record.recording.AudioDeviceInfoUi
-import cs.ok3vo.five9record.recording.RecordingActivity
 import cs.ok3vo.five9record.recording.RecordingService
 import cs.ok3vo.five9record.recording.getAudioRecordingDevices
+import cs.ok3vo.five9record.recording.recordingFile
 import cs.ok3vo.five9record.ui.EnsurePermissions
 import cs.ok3vo.five9record.ui.PickerItem
 import cs.ok3vo.five9record.util.Json
@@ -64,9 +62,10 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import java.io.InputStream
 import java.io.OutputStream
+import java.time.Instant
 
 @Serializable
-private data class SettingsSerde(
+data class SettingsSerde(
     val radioType: RadioType = RadioType.YAESU_FT_891,
     val baudRate: Int = RadioType.YAESU_FT_891.companion.baudRates.first(),
     val audioDevice: Int = -1,
@@ -144,8 +143,7 @@ private enum class State {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StartRecordingScreen(
-    navController: NavHostController, // FIXME: rm
-    onNavigateRecording: (LocationPrecision) -> Unit,
+    onNavigateRecording: () -> Unit,
 ) = MaterialTheme {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -161,14 +159,11 @@ fun StartRecordingScreen(
         persisted = SettingsSerde(),
         serialDevices = serialDevices,
         audioDevices = audioDevices,
-    )
-    ) }
+    )) }
 
     LifecycleStartEffect(Unit) {
         if (Radio.isRunning) {
-            val intent = Intent(context, RecordingActivity::class.java)
-            navController.popBackStack()
-            context.startActivity(intent)
+            onNavigateRecording()
         }
 
         // Load settings
@@ -192,9 +187,10 @@ fun StartRecordingScreen(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                icon = { Icon(painterResource(R.drawable.voicemail), "Record") },
+                icon = { Icon(ImageVector.vectorResource(R.drawable.voicemail), "Record") },
                 text = { Text(stringResource(R.string.start_recording)) },
-                onClick = { state = State.RECORDING_REQUESTED }
+                onClick = { state = State.RECORDING_REQUESTED },
+                containerColor = MaterialTheme.colorScheme.primary,
             )
         }
     ) {
@@ -266,21 +262,14 @@ fun StartRecordingScreen(
                         try {
                             context.startRecording(usb, settings)
                         } catch (e: Exception) {
+                            Log.e("StartRecordingScreen", "Error starting recording", e)
                             error = e
                         }
                     }
 
                     if (error == null) {
-                        val activityIntent = Intent(context, RecordingActivity::class.java)
-                            .apply {
-                                putExtra(
-                                    RecordingActivity.INTENT_STARTUP_DATA,
-                                    settings.locationPrecision as Parcelable
-                                )
-                            }
                         state = State.GROUND
-                        navController.popBackStack()
-                        context.startActivity(activityIntent)
+                        onNavigateRecording()
                     } else {
                         state = State.ERROR.apply { this.error = error!! }
                     }
@@ -355,8 +344,10 @@ private suspend fun Context.startRecording(usb: Usb, settings: Settings) {
         return
     }
 
+    val outputFile = recordingFile(Instant.now())
     val startupData = RecordingService.StartupData(
         audioDevice = audio.id,
+        outputFile = outputFile,
         locationPrecision = settings.locationPrecision,
         locationInMetatrack = settings.locationInMetatrack,
     )

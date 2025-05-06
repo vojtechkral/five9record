@@ -1,7 +1,6 @@
-    package cs.ok3vo.five9record.recording
+package cs.ok3vo.five9record.recording
 
 import android.Manifest
-import android.R
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,14 +10,15 @@ import android.os.Build
 import android.os.Parcelable
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
+import cs.ok3vo.five9record.MainActivity
+import cs.ok3vo.five9record.R
 import cs.ok3vo.five9record.location.LocationListener
 import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.radio.Radio
-import cs.ok3vo.five9record.render.StatusRenderer
+import cs.ok3vo.five9record.ui.video.VideoView
 import cs.ok3vo.five9record.ui.NotificationBuilder
 import cs.ok3vo.five9record.util.acquire
 import cs.ok3vo.five9record.util.release
-import cs.ok3vo.five9record.util.Utc
 import cs.ok3vo.five9record.util.logE
 import cs.ok3vo.five9record.util.logI
 import cs.ok3vo.five9record.util.logW
@@ -26,7 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
-import java.time.format.DateTimeFormatter
+import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 
 class RecordingService: Service() {
@@ -116,11 +116,11 @@ class RecordingService: Service() {
             context = this,
             title = "Recording in Progress",
             text = "Five9 Record is recording an operation",
-            icon = R.drawable.stat_notify_voicemail,
+            icon = R.drawable.voicemail,
             silent = true,
             ongoing = true,
             priority = NotificationCompat.PRIORITY_DEFAULT,
-            targetActivity = RecordingActivity::class,
+            targetActivity = MainActivity::class,
         ).build()
 
     private fun errorNotification(e: Exception)
@@ -128,11 +128,11 @@ class RecordingService: Service() {
             context = this,
             title = "Recording Error",
             text = "The recording was stopped due to an error:\n${e.message}",
-            icon = R.drawable.stat_notify_error,
+            icon = R.drawable.warning,
             silent = false,
             ongoing = false,
             priority = NotificationCompat.PRIORITY_MAX,
-            targetActivity = RecordingActivity::class,
+            targetActivity = MainActivity::class,
         ).notify()
 
     private fun startLocationUpdates() {
@@ -154,13 +154,16 @@ class RecordingService: Service() {
     }
 
     private fun runRecording(startupData: StartupData) {
-        val filename = recordingFilename()
+        val file = startupData.outputFile
+        State.Running.outputFile = file
+        State.Running.locationPrecision = startupData.locationPrecision
+
         val audioDevice = startupData.audioDevice
-        val renderer = StatusRenderer(this, startupData.locationPrecision)
+        val videoView = VideoView(this, startupData.locationPrecision)
         val encoder = RecordingEncoder(
             context = this,
-            renderer = renderer,
-            filename = filename,
+            videoView = videoView,
+            outputFile = file,
             audioDeviceId = audioDevice,
             radioDelay = 100, // FIXME: configurable
             locationInMetatrack = startupData.locationInMetatrack,
@@ -168,7 +171,7 @@ class RecordingService: Service() {
 
         wakeLock.acquire(powerManager, WAKE_LOCK_TAG)
 
-        logI("starting recording with audio dev $audioDevice to file $filename")
+        logI("starting recording with audio dev $audioDevice to file $file")
         encoder.record {
             // We call into Radio directly from the video thread to read status and render it as closely
             // to encoding it as possible, though there will still be some skew.
@@ -202,16 +205,12 @@ class RecordingService: Service() {
         return START_NOT_STICKY
     }
 
-    private fun recordingFilename(): String {
-        val timestamp = Utc.now.format(filenameFormatter)
-        return "${timestamp}.mp4"
-    }
-
     private val locationListener = LocationListener()
 
     @Parcelize
     data class StartupData(
         val audioDevice: Int,
+        val outputFile: File,
         val locationPrecision: LocationPrecision,
         val locationInMetatrack: Boolean,
     ): Parcelable
@@ -228,6 +227,8 @@ class RecordingService: Service() {
         /** Recording running, status data are being published. */
         data object Running: State() {
             val statusData: AtomicReference<StatusData> = AtomicReference(StatusData.dummyValue)
+            var locationPrecision = LocationPrecision.FULL_LOCATION
+            var outputFile: File = File("/dev/null")
         }
 
         /** Recording ended with an error. */
@@ -242,7 +243,6 @@ class RecordingService: Service() {
         const val GPS_MIN_DISTANCE_M = 10.0f
 
         private const val WAKE_LOCK_TAG = "five9record:recording"
-        private val filenameFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
 
         private val statePrivate: AtomicReference<State> = AtomicReference(State.Stopped)
         val state: State get() = statePrivate.get()

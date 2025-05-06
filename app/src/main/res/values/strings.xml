@@ -55,4 +55,16 @@
         Recording cannot be started.
         Hint: App permissions can be configured in the system settings.
     </string>
+    <string name="stop_recording">Stop</string>
+    <string name="recording_ongoing">Recording in progress…</string>
+    <string name="duration">Duration</string>
+    <string name="file">File</string>
+    <string name="stop_recording_prompt">Stop recording?</string>
+    <string name="stop_recording_prompt_text">Are you sure you want to stop the current recording?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="size">Size</string>
+    <string name="preview">Preview</string>
+    <string name="recording_error">Recording Error</string>
+    <string name="recording_error_detail">The recording was stopped due to an error:</string>
 </resources>
