@@ -289,20 +289,19 @@ fun StartRecordingScreen(
 
         State.ERROR -> {
             val error = state.error
-            val bdHint = settings.radioType.companion.baudRateHint
-            val hint = if (bdHint != null && error is CatSerialError) {
-                "\n\nHint: $bdHint"
-            } else {
-                ""
-            }
             val errMsg = error.message ?: "$error"
+
+            val bdHint = settings.radioType.companion.baudRateHint
+            val text = if (bdHint != null && error is CatSerialError) {
+                stringResource(R.string.connect_radio_error, errMsg, bdHint)
+            } else {
+                errMsg
+            }
 
             AlertDialog(
                 onDismissRequest = { state = State.GROUND },
-                title = { Text(stringResource(R.string.error)) },
-                text = {
-                    Text(stringResource(R.string.connect_radio_error, errMsg, hint))
-                },
+                title = { Text(stringResource(R.string.could_not_start_recording)) },
+                text = { Text(text) },
                 confirmButton = {},
                 dismissButton = {
                     Button(onClick = { state = State.GROUND }) {
@@ -322,27 +321,11 @@ private suspend fun Context.startRecording(usb: Usb, settings: Settings) {
     val radio = settings.radioType
     val serial = settings.serialDevice
     if (serial == null && radio != RadioType.MOCKED) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.cannot_start_recording))
-            .setMessage(
-                getString(R.string.cannot_start_recording_no_serial)
-            )
-            .setPositiveButton(getString(R.string.back)) { dialog, _ -> dialog.dismiss() }
-            .show()
-
-        return
+        throw RuntimeException(getString(R.string.cannot_start_recording_no_serial))
     }
 
     val audio = settings.audioDevice
-    if (audio == null) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.cannot_start_recording))
-            .setMessage(getString(R.string.cannot_start_recording_no_audio))
-            .setPositiveButton(getString(R.string.back)) { dialog, _ -> dialog.dismiss() }
-            .show()
-
-        return
-    }
+        ?: throw RuntimeException(getString(R.string.cannot_start_recording_no_audio))
 
     val outputFile = recordingFile(Instant.now())
     val startupData = RecordingService.StartupData(

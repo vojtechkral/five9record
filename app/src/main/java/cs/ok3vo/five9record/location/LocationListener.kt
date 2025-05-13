@@ -18,6 +18,7 @@ class LocationListener: LocationListener, GnssStatus.Callback() {
     fun getLastLocation(): LocationStatus = locationStatus.lock { copy() }
 
     fun setGnssEnabled(enabled: Boolean) = locationStatus.lock { gnssEnabled = enabled }
+    fun setCoarse(coarse: Boolean) = locationStatus.lock { this.coarse = coarse }
 
     override fun onLocationChanged(location: Location) {
         logI(RecordingService::class, "received location: $location")
@@ -39,8 +40,12 @@ class LocationListener: LocationListener, GnssStatus.Callback() {
         locationStatus.lock {
             // Hold on to non-zero numUsedInFix for a bit,
             // otherwise Android tends to reset it back to zero very soon after a fix.
-            numSatellites = if (usedInFix == 0 && lastNonZeroNumUsedInFix.elapsed().seconds < 30) {
-                numSatellites.copy(total = total)
+            val prevNumSatellites = numSatellites
+            numSatellites = if (prevNumSatellites != null
+                && usedInFix == 0
+                && lastNonZeroNumUsedInFix.elapsed().seconds < 30
+            ) {
+                prevNumSatellites.copy(total = total)
             } else {
                 LocationStatus.NumSatellites(
                     usedInFix = usedInFix,

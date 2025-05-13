@@ -5,16 +5,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LocationStatus(
     var gnssEnabled: Boolean,
+    var coarse: Boolean,
     /** Current position coordinates, only non-null when position has been obtained. */
     var position: Position?,
     /** Current number of GNSS satellites observed. */
-    var numSatellites: NumSatellites,
+    var numSatellites: NumSatellites?,
 ) {
-    // Not using default values because Json skips over them by default :/
+    // Not using default values because kotlinx Json skips over them by default :/
     constructor(): this(
         gnssEnabled = false,
+        coarse = false,
         position = null,
-        numSatellites = NumSatellites(0, 0)
+        numSatellites = null,
     )
 
     @Serializable

@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.view.LayoutInflater
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -37,7 +38,11 @@ class VideoView(
     }
 
     private val utcFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    val tx = findViewById<TextView>(R.id.tx)
+    val txLed = findViewById<ImageView>(R.id.txLed)
+    val gnssDetails = findViewById<LinearLayout>(R.id.gnssDetails)
 
+    @SuppressLint("SetTextI18n")
     fun updateData(statusData: StatusData) {
         val sd = statusData
         setText(R.id.rig) { sd.radio.rig }
@@ -47,8 +52,6 @@ class VideoView(
 
         setText(R.id.utc) { sd.timestamp.atOffset(ZoneOffset.UTC).format(utcFormatter) }
 
-        val tx = findViewById<TextView>(R.id.tx)
-        val txLed = findViewById<ImageView>(R.id.txLed)
         if (sd.radio.tx) {
             tx.text = "TX"
             txLed.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.status_tx))
@@ -58,8 +61,21 @@ class VideoView(
         }
 
         setText(R.id.qth) { sd.location.formatQth(locationPrecision) }
-        setText(R.id.gnssDetail) { sd.location.formatGnssDetail(locationPrecision) }
-
+        if (!sd.location.gnssEnabled) {
+            gnssDetails.visibility = VISIBLE
+            setText(R.id.gnssNumSats) { "GNSS location disabled" }
+        } else if (sd.location.coarse) {
+            gnssDetails.visibility = GONE
+        } else {
+            gnssDetails.visibility = VISIBLE
+            val numSatellites = sd.location.numSatellites
+            if (numSatellites != null) {
+                setText(R.id.gnssNumSats) { numSatellites.format() }
+            } else {
+                setText(R.id.gnssNumSats) { "0/0" }
+            }
+        }
+        setText(R.id.gnssCoords) { sd.location.formatGnssCoords(locationPrecision) }
     }
 
     private fun setText(@IdRes id: Int, text: () -> String) {
@@ -136,26 +152,17 @@ fun LocationStatus.formatQth(precision: LocationPrecision): String {
     return position?.toMaidenhead(precision.subsquareEnabled) ?: "Acquiring…"
 }
 
-fun LocationStatus.formatGnssDetail(precision: LocationPrecision): String {
-    if (!gnssEnabled) {
-        return "GNSS location disabled"
-    }
-
+fun LocationStatus.formatGnssCoords(precision: LocationPrecision): String {
     val pos = position
-    val satsFix = numSatellites.usedInFix
-    val satsTotal = numSatellites.total
-
-    if (pos == null) {
-        return "$satsFix/$satsTotal"
+    if (!gnssEnabled || pos == null || precision != LocationPrecision.FULL_LOCATION) {
+        return ""
     }
 
-    return if (precision == LocationPrecision.FULL_LOCATION) {
-        val lat = pos.formatLat()
-        val lon = pos.formatLon()
-        val accuracy = pos.accuracyRadius?.let { " ±%.1fm".format(Locale.ROOT, it) } ?: ""
+    val lat = pos.formatLat()
+    val lon = pos.formatLon()
+    val accuracy = pos.accuracyRadius?.let { " ±%.1fm".format(Locale.ROOT, it) } ?: ""
 
-        "$satsFix/$satsTotal $lat $lon$accuracy"
-    } else {
-        "$satsFix/$satsTotal"
-    }
+    return "$lat $lon$accuracy"
 }
+
+fun LocationStatus.NumSatellites.format() = "$usedInFix/$total"

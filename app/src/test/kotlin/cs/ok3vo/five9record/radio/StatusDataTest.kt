@@ -20,6 +20,7 @@ class StatusDataTest: StringSpec({
             ),
             location = LocationStatus(
                 gnssEnabled = true,
+                coarse = false,
                 position = LocationStatus.Position(50.0, 0.0, 5.0f),
                 numSatellites = LocationStatus.NumSatellites(7, 10),
             ),
@@ -37,6 +38,7 @@ class StatusDataTest: StringSpec({
             },
             "location": {
                 "gnssEnabled": true,
+                "coarse": false,
                 "position": {
                     "latitude": 50.0,
                     "longitude": 0.0,

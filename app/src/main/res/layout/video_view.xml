@@ -198,20 +198,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <LinearLayout>
-
+            <LinearLayout android:id="@+id/gnssDetails">
                 <ImageView
-                    style="@style/status_screen"
+                    android:id="@+id/gnssSatIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:paddingEnd="5px"
                     android:src="@drawable/gnss_satellite" />
-
                 <TextView
-                    android:id="@+id/gnssDetail"
+                    android:id="@+id/gnssNumSats"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="8/16 50.07550N 14.43780E"
+                    android:text="8/16"
+                    android:textColor="@android:color/white"
+                    android:textSize="25px"
+                    android:layout_marginEnd="15px"/>
+                <TextView
+                    android:id="@+id/gnssCoords"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="50.07550N 14.43780E"
                     android:textColor="@android:color/white"
                     android:textSize="25px" />
             </LinearLayout>
@@ -226,9 +232,8 @@
         android:text="Recorded with Five9 Record by OK3VO"
         android:textColor="@android:color/darker_gray"
         android:textSize="15px"
-        android:paddingTop="18px"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

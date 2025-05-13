@@ -4,8 +4,9 @@ import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.location.LocationStatus
 import cs.ok3vo.five9record.radio.rig.MockedRadio
 import cs.ok3vo.five9record.radio.Mode
+import cs.ok3vo.five9record.ui.video.format
 import cs.ok3vo.five9record.ui.video.formatFreq
-import cs.ok3vo.five9record.ui.video.formatGnssDetail
+import cs.ok3vo.five9record.ui.video.formatGnssCoords
 import cs.ok3vo.five9record.ui.video.formatLat
 import cs.ok3vo.five9record.ui.video.formatLon
 import cs.ok3vo.five9record.ui.video.formatMode
@@ -69,57 +70,76 @@ class VideoViewTest: StringSpec ({
 
     "formatQth and formatGnssDetail" {
         forAll(
-            row(LocationStatus(), "N/A", "GNSS location disabled"),
+            row(LocationStatus(), "N/A", null, ""),
             row(
                 LocationStatus(
                     gnssEnabled = true,
+                    coarse = false,
                     position = null,
                     numSatellites = LocationStatus.NumSatellites(1, 10),
                 ),
                 "Acquiring…",
                 "1/10",
+                "",
             ),
             row(
                 LocationStatus(
                     gnssEnabled = true,
+                    coarse = false,
                     position = position(0.123456789, 50.123456789),
                     numSatellites = LocationStatus.NumSatellites(15, 30),
                 ),
                 "LJ50BC",
-                "15/30 0.12346N 50.12346E",
+                "15/30",
+                "0.12346N 50.12346E",
             ),
             row(
                 LocationStatus(
                     gnssEnabled = true,
+                    coarse = false,
                     position = position(0.123456789, 50.123456789, 16.555f),
                     numSatellites = LocationStatus.NumSatellites(15, 30),
                 ),
                 "LJ50BC",
-                "15/30 0.12346N 50.12346E ±16.6m",
+                "15/30",
+                "0.12346N 50.12346E ±16.6m",
+            ),
+            row(
+                LocationStatus(
+                    gnssEnabled = true,
+                    coarse = true,
+                    position = position(0.123456789, 50.123456789, 2000.0f),
+                    numSatellites = null,
+                ),
+                "LJ50BC",
+                null,
+                "0.12346N 50.12346E ±2000.0m", // will not be actually shown
             ),
         ) {
-            location, expectedQth, expectedDetail ->
+            location, expectedQth, expectedNumSats, expectedCoords ->
 
             val precision = LocationPrecision.FULL_LOCATION
             location.formatQth(precision) shouldBe expectedQth
-            location.formatGnssDetail(precision) shouldBe expectedDetail
+            location.numSatellites?.format() shouldBe expectedNumSats
+            location.formatGnssCoords(precision) shouldBe expectedCoords
         }
     }
 
     "formatQth and formatGnssDetail precision config" {
         val location = LocationStatus(
             gnssEnabled = true,
+            coarse = false,
             position = position(0.123456789, 50.123456789),
             numSatellites = LocationStatus.NumSatellites(15, 30),
         )
         forAll(
-            row(LocationPrecision.FULL_LOCATION, "LJ50BC", "15/30 0.12346N 50.12346E"),
-            row(LocationPrecision.LOCATOR_SUBSQUARE, "LJ50BC", "15/30"),
-            row(LocationPrecision.LOCATOR_SQUARE, "LJ50", "15/30"),
+            row(LocationPrecision.FULL_LOCATION, "LJ50BC", "0.12346N 50.12346E"),
+            row(LocationPrecision.LOCATOR_SUBSQUARE, "LJ50BC", ""),
+            row(LocationPrecision.LOCATOR_SQUARE, "LJ50", ""),
         ) {
-            precision, expectedQth, expectedDetail ->
+            precision, expectedQth, expectedCoords ->
             location.formatQth(precision) shouldBe expectedQth
-            location.formatGnssDetail(precision) shouldBe expectedDetail
+            location.formatGnssCoords(precision) shouldBe expectedCoords
         }
     }
 })

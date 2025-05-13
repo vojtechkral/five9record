@@ -46,8 +46,15 @@ fun EnsurePermissions(
         ActivityResultContracts.RequestMultiplePermissions()
     ) {
         grantedMap ->
-        if (grantedMap.any { !it.value }) {
-            nonGrantedPerms = grantedMap.filterValues { !it }.keys.toList()
+
+        // Don't fail if fine location was not granted
+        val notGranted = grantedMap.filter {
+            (perm, granted) ->
+            perm != permission.ACCESS_FINE_LOCATION && !granted
+        }
+
+        if (notGranted.isNotEmpty()) {
+            nonGrantedPerms = notGranted.keys.toList()
         } else {
             onGranted(true)
         }

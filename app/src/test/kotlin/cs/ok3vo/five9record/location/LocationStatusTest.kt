@@ -29,11 +29,9 @@ class LocationStatusTest: StringSpec({
         val json = Json.encodeToJsonElement(data)
         val expected = Json.parseToJsonElement("""{
             "gnssEnabled": false,
+            "coarse": false,
             "position": null,
-            "numSatellites": {
-                "usedInFix": 0,
-                "total": 0
-            }
+            "numSatellites": null
         }""".trimIndent())
 
         json shouldBe expected
@@ -42,6 +40,7 @@ class LocationStatusTest: StringSpec({
     "serialization with GNSS acquiring" {
         val data = LocationStatus(
             gnssEnabled = true,
+            coarse = false,
             position = null,
             numSatellites = LocationStatus.NumSatellites(5, 10),
         )
@@ -49,11 +48,35 @@ class LocationStatusTest: StringSpec({
         val json = Json.encodeToJsonElement(data)
         val expected = Json.parseToJsonElement("""{
             "gnssEnabled": true,
+            "coarse": false,
             "position": null,
             "numSatellites": {
                 "usedInFix": 5,
                 "total": 10
             }
+        }""".trimIndent())
+
+        json shouldBe expected
+    }
+
+    "serialization with coarse location" {
+        val data = LocationStatus(
+            gnssEnabled = true,
+            coarse = true,
+            position = LocationStatus.Position(50.0, 0.0, 2000.0f),
+            numSatellites = null,
+        )
+
+        val json = Json.encodeToJsonElement(data)
+        val expected = Json.parseToJsonElement("""{
+            "gnssEnabled": true,
+            "coarse": true,
+            "position": {
+                "latitude": 50.0,
+                "longitude": 0.0,
+                "accuracyRadius": 2000.0
+            },
+            "numSatellites": null
         }""".trimIndent())
 
         json shouldBe expected
@@ -67,6 +90,7 @@ class LocationStatusTest: StringSpec({
             accuracy, accuracyJson ->
             val data = LocationStatus(
                 gnssEnabled = true,
+                coarse = false,
                 position = LocationStatus.Position(50.0, 0.0, accuracy),
                 numSatellites = LocationStatus.NumSatellites(5, 10),
             )
@@ -75,6 +99,7 @@ class LocationStatusTest: StringSpec({
             val expected = Json.parseToJsonElement(
                 """{
                     "gnssEnabled": true,
+                    "coarse": false,
                     "position": {
                         "latitude": 50.0,
                         "longitude": 0.0,

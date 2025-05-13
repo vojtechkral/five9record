@@ -1,6 +1,6 @@
 package cs.ok3vo.five9record.recording
 
-import android.Manifest
+import android.Manifest.permission
 import android.app.Service
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -136,10 +136,16 @@ class RecordingService: Service() {
         ).notify()
 
     private fun startLocationUpdates() {
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // FIXME: error
+        if (checkSelfPermission(permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            logE("Location permission not granted")
+            locationListener.setGnssEnabled(false)
             return
         }
+
+        val gnssEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        locationListener.setGnssEnabled(gnssEnabled)
+        val fineLocation = checkSelfPermission(permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        locationListener.setCoarse(!fineLocation)
 
         locationManager.requestLocationUpdates(
             LocationManager.GPS_PROVIDER,
@@ -148,9 +154,10 @@ class RecordingService: Service() {
             locationListener,
         )
 
-        val gnssEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        locationListener.setGnssEnabled(gnssEnabled)
-        locationManager.registerGnssStatusCallback(locationListener, null)
+        // GNSS status callback is only available with fine location
+        if (fineLocation) {
+            locationManager.registerGnssStatusCallback(locationListener, null)
+        }
     }
 
     private fun runRecording(startupData: StartupData) {

@@ -1,6 +1,6 @@
 # TODO
 
-- Bug: Main screen back btn
+- Fix Main screen back btn
 - Prune deps
 - FIXMEs
 - Unit test FT-891 CAT parsing
@@ -54,3 +54,5 @@
 - Recordings location hint
 - Convert to Compose
 - Extract strings to resources
+- Fix coarse location support
+- Fix no USB error
