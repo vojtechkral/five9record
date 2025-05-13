@@ -24,7 +24,7 @@ class StartRecordingTest: StringSpec({
 
     "SettingsSerde serde non-default" {
         val data = SettingsSerde(
-            radioType = RadioType.AOR_AR8200,
+            radioType = RadioType.MOCKED,
             baudRate = 9600,
             audioDevice = 9001,
             locationPrecision = LocationPrecision.LOCATOR_SQUARE,
@@ -33,7 +33,7 @@ class StartRecordingTest: StringSpec({
         val json = Json.encodeToString(data)
 
         json shouldEqualJson """{
-            "radioType": "AOR_AR8200",
+            "radioType": "MOCKED",
             "baudRate": 9600,
             "audioDevice": 9001,
             "locationPrecision": "LOCATOR_SQUARE",

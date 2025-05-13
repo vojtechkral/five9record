@@ -21,7 +21,7 @@ interface RadioIo: Closeable {
 @Serializable
 enum class RadioType {
     YAESU_FT_891,
-    AOR_AR8200,
+    // AOR_AR8200,  // TODO: work in progress
     MOCKED,
     ;
 
@@ -35,7 +35,7 @@ enum class RadioType {
 
     val companion: RadioIo.Companion get() = when (this) {
         YAESU_FT_891 -> YaesuFt891.Companion
-        AOR_AR8200 -> AorAr8200.Companion
+        // AOR_AR8200 -> AorAr8200.Companion
         MOCKED -> MockedRadio.Companion
     }
 
