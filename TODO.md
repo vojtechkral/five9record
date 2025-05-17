@@ -1,7 +1,6 @@
 # TODO
 
 - Fix Main screen back btn
-- Prune deps
 - Unit test FT-891 CAT parsing
 - Display audio RMS in recording activity (val rms = sqrt(buffer.map { it * it }.average()))
 - Logcat collection
@@ -59,3 +58,4 @@
 - Fix coarse location support
 - Fix no USB error
 - String resources for baud rate hints
+- Prune deps

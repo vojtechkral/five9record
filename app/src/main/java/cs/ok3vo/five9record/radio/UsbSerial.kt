@@ -9,8 +9,6 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbDeviceConnection
 import android.hardware.usb.UsbManager
 import android.os.Build
-import android.util.Log
-import androidx.appcompat.app.AppCompatActivity.RECEIVER_NOT_EXPORTED
 import androidx.core.content.getSystemService
 import com.hoho.android.usbserial.driver.UsbSerialDriver
 import com.hoho.android.usbserial.driver.UsbSerialPort
@@ -59,7 +57,7 @@ class Usb(
     suspend fun openSerial(device: SerialDevice): OpenSerialDevice {
         val filter = IntentFilter(ACTION_USB_PERMISSION)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.registerReceiver(this, filter, RECEIVER_NOT_EXPORTED)
+            context.registerReceiver(this, filter, Context.RECEIVER_NOT_EXPORTED)
         } else {
             context.registerReceiverPreTiramisu(this, filter)
         }
