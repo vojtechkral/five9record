@@ -4,6 +4,8 @@ import cs.ok3vo.five9record.location.LocationPrecision
 import cs.ok3vo.five9record.location.LocationStatus
 import cs.ok3vo.five9record.radio.rig.MockedRadio
 import cs.ok3vo.five9record.radio.Mode
+import cs.ok3vo.five9record.radio.RadioData
+import cs.ok3vo.five9record.radio.rig.MockedRadio.Companion.name
 import cs.ok3vo.five9record.ui.video.format
 import cs.ok3vo.five9record.ui.video.formatFreq
 import cs.ok3vo.five9record.ui.video.formatGnssCoords
@@ -16,9 +18,18 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import kotlin.random.Random
 
 private fun position(lon: Double, lat: Double, accuracyRadius: Float? = null)
     = LocationStatus.Position(lon, lat, accuracyRadius)
+
+fun RadioData.Companion.random() = RadioData(
+    rig = name,
+    freq = (14200000L..14350000L).random(),
+    mode = Mode.USB,
+    tx = Random.nextBoolean(),
+    power = 40,
+)
 
 class VideoViewTest: StringSpec ({
     "formatFreq" {
@@ -28,8 +39,7 @@ class VideoViewTest: StringSpec ({
             row(1L, "1 Hz"),
         ) {
             freq, expected ->
-            MockedRadio
-                .mockRadioData()
+            RadioData.random()
                 .copy(freq = freq)
                 .formatFreq() shouldBe expected
         }
@@ -42,16 +52,15 @@ class VideoViewTest: StringSpec ({
             row(Mode.OTHER, "Unknown"),
         ) {
             mode, expected ->
-            MockedRadio
-                .mockRadioData()
+            RadioData.random()
                 .copy(mode = mode)
                 .formatMode() shouldBe expected
         }
     }
 
     "formatPower" {
-        MockedRadio
-            .mockRadioData()
+        RadioData
+            .random()
             .copy(power = 123)
             .formatPower() shouldBe "123W"
     }
