@@ -75,11 +75,13 @@ class Usb(
         val granted = permissionChan.receive()
         return if (granted) {
             usbMgr?.openDevice(device.driver.device)?.let {
+                logI("Opened serial device $device")
                 val serial = OpenSerialDevice(
                     driver = device.driver,
                     connection = it,
                 )
                 serial.port.open(it)
+                logI("Opened serial port ${it.serial}")
                 serial
             } ?: "Could not open USB device".throwError()
         } else {

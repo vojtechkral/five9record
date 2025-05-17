@@ -2,6 +2,7 @@ package cs.ok3vo.five9record.radio
 
 import cs.ok3vo.five9record.radio.rig.MockedRadio
 import cs.ok3vo.five9record.radio.rig.YaesuFt891
+import cs.ok3vo.five9record.util.logI
 import kotlinx.serialization.Serializable
 import java.io.Closeable
 
@@ -52,6 +53,7 @@ object Radio {
             throw IllegalStateException("Recording already running")
         }
 
+        logI("Starting I/O for $type")
         io = type.startIo(serial, baudRate)
     }
 
@@ -61,6 +63,7 @@ object Radio {
             throw IllegalStateException("Recording already running")
         }
 
+        logI("Starting MockedRadio")
         io = MockedRadio()
     }
 

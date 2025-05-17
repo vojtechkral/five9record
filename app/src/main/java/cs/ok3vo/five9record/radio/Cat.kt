@@ -1,6 +1,5 @@
 package cs.ok3vo.five9record.radio
 
-import android.util.Log
 import com.hoho.android.usbserial.util.SerialInputOutputManager
 import cs.ok3vo.five9record.util.logE
 import java.util.concurrent.ArrayBlockingQueue
