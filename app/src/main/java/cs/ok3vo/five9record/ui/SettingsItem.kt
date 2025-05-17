@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
-// FIXME: app-wide theme
+// TODO: app-wide theme
 @OptIn(ExperimentalMaterial3Api::class)
 private val MyRippleConfiguration =
     RippleConfiguration(color = Color.Gray, rippleAlpha = RippleAlpha(
@@ -84,7 +84,7 @@ fun SettingsItem(
                     )
                     Text(
                         text = value,
-                        style = MaterialTheme.typography.titleLarge, // FIXME:
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }

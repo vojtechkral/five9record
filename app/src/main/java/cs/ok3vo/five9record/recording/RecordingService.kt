@@ -172,7 +172,7 @@ class RecordingService: Service() {
             videoView = videoView,
             outputFile = file,
             audioDeviceId = audioDevice,
-            radioDelay = 100, // FIXME: configurable
+            radioPollInterval = RADIO_POLL_INTERVAL,
             locationInMetatrack = startupData.locationInMetatrack,
         )
 
@@ -246,6 +246,7 @@ class RecordingService: Service() {
 
     companion object {
         const val INTENT_STARTUP_DATA = "startup_data"
+        const val RADIO_POLL_INTERVAL = 100
         const val GPS_MIN_TIME_MS = 10_000L
         const val GPS_MIN_DISTANCE_M = 10.0f
 

@@ -42,7 +42,7 @@ fun<T> PickerItem(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Choose $title") }, // FIXME: parameter, can then be a resource
+            title = { Text(title) },
             text = {
                 Column {
                     items.forEach { item ->

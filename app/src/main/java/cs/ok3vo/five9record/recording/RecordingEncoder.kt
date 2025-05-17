@@ -34,7 +34,7 @@ class RecordingEncoder(
     private val videoView: VideoView,
     private val outputFile: File,
     private val audioDeviceId: Int,
-    private val radioDelay: Int,
+    private val radioPollInterval: Int,
     private val locationInMetatrack: Boolean,
 ) {
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -165,7 +165,7 @@ class RecordingEncoder(
 
                 writeMetadata(statusData, pts, locationInMetatrack)
 
-                sleep(radioDelay.toLong())
+                sleep(radioPollInterval.toLong())
             }
 
             finalizeStream()
@@ -332,7 +332,6 @@ class RecordingEncoder(
 
                 if (inBufferId < 0) {
                     // no buffer currently available
-                    // FIXME: sleep? would have to be useconds grade sleep
                     return
                 }
 
@@ -412,12 +411,12 @@ class RecordingEncoder(
         const val VIDEO_W = 640
         const val VIDEO_H = 480
         private const val VIDEO_FPS = 10
-        private const val VIDEO_RATE = 2_000_000 // FIXME: configurable?
+        private const val VIDEO_RATE = 2_000_000
         private const val VIDEO_I_INTERVAL = 1
         private const val VIDEO_BUFFER_TIMEOUT = 10_000L
 
         private const val AUDIO_SAMPLE_RATE = 44100
-        private const val AUDIO_RATE = 128_000  // FIXME: configurable?
+        private const val AUDIO_RATE = 128_000
         private const val AUDIO_BUFFER_TIMEOUT = 10_000L
 
         private const val META_MIME_TYPE = "application/json"

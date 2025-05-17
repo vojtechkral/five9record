@@ -270,5 +270,3 @@ private fun Mode.Companion.fromFt891Info(id: String): Mode =
         "D" -> Mode.AM // narrow AM
         else -> Mode.OTHER
     }
-
-// FIXME: unit test parsing

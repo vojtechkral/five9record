@@ -1,13 +1,15 @@
 # TODO
 
 - Fix Main screen back btn
-- FIXMEs
 - Prune deps
 - Unit test FT-891 CAT parsing
 - Display audio RMS in recording activity (val rms = sqrt(buffer.map { it * it }.average()))
 - Logcat collection
 - Theme / colours
 
+---
+
+- Configurable CAT poll rate?
 - Configurable codec bitrates?
 - DRY out catQuery/catCmd?
 - AOR AR8200 implementation
