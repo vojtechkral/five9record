@@ -293,7 +293,8 @@ fun StartRecordingScreen(
 
             val bdHint = settings.radioType.companion.baudRateHint
             val text = if (bdHint != null && error is CatSerialError) {
-                stringResource(R.string.connect_radio_error, errMsg, bdHint)
+                val hint = stringResource(bdHint)
+                stringResource(R.string.connect_radio_error, errMsg, hint)
             } else {
                 errMsg
             }

@@ -3,6 +3,7 @@ package cs.ok3vo.five9record.radio.rig
 import com.hoho.android.usbserial.driver.SerialTimeoutException
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.util.SerialInputOutputManager
+import cs.ok3vo.five9record.R
 import cs.ok3vo.five9record.radio.AsciiCatCmd
 import cs.ok3vo.five9record.radio.AsciiCatListener
 import cs.ok3vo.five9record.radio.AsciiCatQuery
@@ -117,7 +118,7 @@ class YaesuFt891(
             19200,
             38400,
         )
-        override val baudRateHint = "The baud rate should match FT-891 configuration item 05-06."
+        override val baudRateHint = R.string.baud_rate_hint_ft891
 
         override fun startIo(serial: OpenSerialDevice, baudRate: Int) = YaesuFt891(serial, baudRate)
 

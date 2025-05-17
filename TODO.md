@@ -1,16 +1,16 @@
 # TODO
 
 - Fix Main screen back btn
-- Prune deps
 - FIXMEs
+- Prune deps
 - Unit test FT-891 CAT parsing
-- AOR AR8200 implementation
-- Configurable codec bitrates?
 - Display audio RMS in recording activity (val rms = sqrt(buffer.map { it * it }.average()))
 - Logcat collection
 - Theme / colours
-- String resources for baud rate hints (?)
+
+- Configurable codec bitrates?
 - DRY out catQuery/catCmd?
+- AOR AR8200 implementation
 - AAC stream not finalized properly
 - Mux to MKV? https://github.com/Matroska-Org/jebml
   - eg.: https://gitlab.com/axet/android-audio-library/-/blob/master/src/main/java/com/github/axet/audiolibrary/encoders/FormatMKA_AAC.java
@@ -56,3 +56,4 @@
 - Extract strings to resources
 - Fix coarse location support
 - Fix no USB error
+- String resources for baud rate hints

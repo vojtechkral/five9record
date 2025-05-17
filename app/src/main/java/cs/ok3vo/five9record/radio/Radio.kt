@@ -1,6 +1,5 @@
 package cs.ok3vo.five9record.radio
 
-import cs.ok3vo.five9record.radio.rig.AorAr8200
 import cs.ok3vo.five9record.radio.rig.MockedRadio
 import cs.ok3vo.five9record.radio.rig.YaesuFt891
 import kotlinx.serialization.Serializable
@@ -12,7 +11,8 @@ interface RadioIo: Closeable {
     interface Companion {
         val name: String
         val baudRates: Array<Int>
-        val baudRateHint: String?
+        /** The string resource id of baud rate hint string, if any. */
+        val baudRateHint: Int?
 
         fun startIo(serial: OpenSerialDevice, baudRate: Int): RadioIo
     }
